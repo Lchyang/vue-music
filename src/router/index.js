@@ -1,15 +1,16 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import MHeader from 'components/m-header/m-header'
+import Recommend from 'components/recommend/recommend'
 
 Vue.use(Router)
 
 export default new Router({
   routes: [
+
     {
       path: '/',
-      name: 'MHeader',
-      component: MHeader
+      name: 'Recommend',
+      component: Recommend
     }
   ]
 })
