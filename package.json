@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "babel-polyfill": "^6.26.0",
     "babel-runtime": "^6.26.0",
     "core-js": "^3.6.5",
     "fastclick": "^1.0.6",
@@ -36,39 +37,39 @@
   "eslintConfig": {
     "root": true,
     "env": {
-        "node": true,
-        "browser": true,
-        "es6": true
+      "node": true,
+      "browser": true,
+      "es6": true
     },
     "extends": [
-        "plugin:vue/essential",
-        "eslint:recommended",
-        "standard"
+      "plugin:vue/essential",
+      "eslint:recommended",
+      "standard"
     ],
     "globals": {
-        "Atomics": "readonly",
-        "SharedArrayBuffer": "readonly"
+      "Atomics": "readonly",
+      "SharedArrayBuffer": "readonly"
     },
     "parserOptions": {
-        "parser": "babel-eslint",
-        "ecmaVersion": 2018,
-        "sourceType": "module"
+      "parser": "babel-eslint",
+      "ecmaVersion": 2018,
+      "sourceType": "module"
     },
     "plugins": [
-        "vue"
+      "vue"
     ],
     "rules": {
-        "semi": [
-            "error",
-            "never"
-        ],
-        "quotes": [
-            "error",
-            "single"
-        ],
-        "no-trailing-spaces": [
-            "error"
-        ]
+      "semi": [
+        "error",
+        "never"
+      ],
+      "quotes": [
+        "error",
+        "single"
+      ],
+      "no-trailing-spaces": [
+        "error"
+      ]
     }
   },
   "browserslist": [
