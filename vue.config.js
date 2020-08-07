@@ -10,6 +10,7 @@ module.exports = {
       .set('common', path.join(__dirname, './src/common'))
       .set('components', path.join(__dirname, './src/components'))
       .set('api', path.join(__dirname, './src/api'))
+      .set('base', path.join(__dirname, './src/base'))
   },
   devServer: {
     before (app) {
