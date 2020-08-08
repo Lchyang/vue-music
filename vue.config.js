@@ -15,6 +15,21 @@ module.exports = {
   devServer: {
     // TODO 这段代码需要仔细看一下
     before (app) {
+      app.get('/api/getDiscList', function (req, res) {
+        const url = 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
+        axios.get(url, {
+          headers: {
+            referer: 'https://c.y.qq.com/',
+            host: 'c.y.qq.com'
+          },
+          params: req.query
+        }).then((response) => {
+          res.json(response.data)
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
+
       app.get('/api/getTopBanner', function (req, res) {
         const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
         const jumpPrefixMap = {

@@ -57,6 +57,10 @@ export default {
       })
     }, 20)
   },
+  destroyed () {
+    // 设置setTimeOut时，要及时清理
+    clearTimeout(this.timer)
+  },
   methods: {
     _setSliderWidth (isResize) {
       // 获取sliderGroup 的子元素
@@ -99,7 +103,6 @@ export default {
       this.slider.on('scrollEnd', () => {
         // silider 获取当前page的index
         const pageIndex = this.slider.getCurrentPage().pageX
-        console.log(pageIndex)
         this.currentPageIndex = pageIndex
         // FIXME: 当自动手动干预轮播之后时间间隔会改变
         if (this.autoPlay) {
