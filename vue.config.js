@@ -13,6 +13,7 @@ module.exports = {
       .set('base', path.join(__dirname, './src/base'))
   },
   devServer: {
+    // TODO 这段代码需要仔细看一下
     before (app) {
       app.get('/api/getTopBanner', function (req, res) {
         const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
@@ -29,7 +30,6 @@ module.exports = {
           },
           params: req.query
         }).then((response) => {
-          console.log(response.data)
           response = response.data
           if (response.code === 0) {
             const slider = []
