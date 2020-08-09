@@ -30,6 +30,25 @@ module.exports = {
         })
       })
 
+      app.get('/api/getSingerList', function (req, res) {
+        const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
+
+        axios.get(url, {
+          headers: {
+            referer: 'https://u.y.qq.com/',
+            host: 'u.y.qq.com'
+          },
+          params: req.query
+        }).then((response) => {
+          response = response.data
+          res.json({
+            response
+          })
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
+
       app.get('/api/getTopBanner', function (req, res) {
         const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
         const jumpPrefixMap = {
