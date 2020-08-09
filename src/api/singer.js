@@ -24,7 +24,7 @@ export function getSingerList () {
       singerList: {
         module: 'Music.SingerListServer',
         method: 'get_singer_list',
-        param: { area: -100, sex: -100, genre: -100, index: -100, sin: 240, cur_page: 4 }
+        param: { area: -100, sex: -100, genre: -100, index: -100, sin: 0, cur_page: 1 }
       }
     }
     // data: {
