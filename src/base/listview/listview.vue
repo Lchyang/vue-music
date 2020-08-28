@@ -14,7 +14,7 @@
     </ul>
     <div class="list-shortcut">
       <ul>
-        <li v-for="(item,index) in singerAph" :key="index">{{item.substring(0,1)}}</li>
+        <li v-for="(item,index) in shortcutData" :key="index">{{item.substring(0,1)}}</li>
       </ul>
     </div>
   </scroll>
@@ -22,23 +22,18 @@
 
 <script type="text/ecmascript-6">
 import Scroll from 'base/scroll/scroll'
-// import { singerAph } from 'api/config'
+import { singerAph } from 'api/config'
 export default {
   components: {
     Scroll
   },
   data () {
     return {
+      singerAph: singerAph
     }
   },
   props: {
     singerData: {
-      type: Object,
-      default () {
-        return {}
-      }
-    },
-    singerAph: {
       type: Object,
       default () {
         return {}
@@ -48,17 +43,18 @@ export default {
   computed: {
     getSatus () {
       return this.singerAph[this.singerData.index]
-    }
-  },
-  methods: {
+    },
+    // Objecg 转化为 Array 因为数组可以有序，对象无序排列
     shortcutData () {
-      console.log(this.singerAph)
+      const singerList = []
+      for (const val in this.singerAph) {
+        singerList.push(this.singerAph[val])
+      }
+      singerList.unshift(singerList.pop())
+      console.log(singerList)
+      return singerList
     }
-  },
-  mounted () {
-    this.shortcutData()
   }
-
 }
 </script>
 
