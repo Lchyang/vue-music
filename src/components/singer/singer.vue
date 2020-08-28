@@ -1,19 +1,19 @@
 <template>
   <div class="singer">
-    <listview :singerData="singerData"></listview>
+    <listview :singerData="singerData" :singerAph="singerAph"></listview>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 import { getSingerList } from 'api/singer'
-import { ERR_OK } from 'api/config'
+import { ERR_OK, singerAph } from 'api/config'
 import Listview from 'base/listview/listview'
-// const HOT_SINGER_LEN = 10
-// const HOT_NAME = '热门'
+
 export default {
   data () {
     return {
-      singerData: []
+      singerData: [],
+      singerAph: singerAph
     }
   },
   components: {

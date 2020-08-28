@@ -2,13 +2,9 @@
   <scroll class="listview">
     <ul>
       <li class="list-group">
-        <h2 class="list-group-title">{{singerData.index}}</h2>
+        <h2 class="list-group-title">{{getSatus}}</h2>
         <ul>
-          <li
-            class="list-group-item border-bottom"
-            v-for="item in singerData.singerlist"
-            :key="item.singer_id"
-          >
+          <li class="list-group-item" v-for="item in singerData.singerlist" :key="item.singer_id">
             <img class="list-group-item-img" v-lazy="item.singer_pic" />
             <p class="list-group-item-name">{{item.singer_name}}</p>
           </li>
@@ -16,14 +12,24 @@
         </ul>
       </li>
     </ul>
+    <div class="list-shortcut">
+      <ul>
+        <li v-for="(item,index) in singerAph" :key="index">{{item.substring(0,1)}}</li>
+      </ul>
+    </div>
   </scroll>
 </template>
 
 <script type="text/ecmascript-6">
 import Scroll from 'base/scroll/scroll'
+// import { singerAph } from 'api/config'
 export default {
   components: {
     Scroll
+  },
+  data () {
+    return {
+    }
   },
   props: {
     singerData: {
@@ -31,16 +37,33 @@ export default {
       default () {
         return {}
       }
+    },
+    singerAph: {
+      type: Object,
+      default () {
+        return {}
+      }
     }
+  },
+  computed: {
+    getSatus () {
+      return this.singerAph[this.singerData.index]
+    }
+  },
+  methods: {
+    shortcutData () {
+      console.log(this.singerAph)
+    }
+  },
+  mounted () {
+    this.shortcutData()
   }
+
 }
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
 @import '~common/stylus/variable'
-
-.border-bottom
-  border-color: $color-theme
 
 .listview
   position: relative
@@ -61,7 +84,8 @@ export default {
       display: flex
       overflow: hidden
       align-items: center
-      padding: 20px 0 0 30px
+      border-bottom: 0.1px solid $color-dialog-background
+      padding: 10px 0 10px 30px
       .list-group-item-img
         width: 50px
         height: 50px
