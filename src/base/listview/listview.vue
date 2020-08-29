@@ -2,7 +2,7 @@
   <scroll class="listview">
     <ul>
       <li class="list-group">
-        <h2 class="list-group-title">{{getSatus}}</h2>
+        <h2 class="list-group-title">{{getGroupTitle}}</h2>
         <ul>
           <li class="list-group-item" v-for="item in singerData.singerlist" :key="item.singer_id">
             <img class="list-group-item-img" v-lazy="item.singer_pic" />
@@ -12,9 +12,14 @@
         </ul>
       </li>
     </ul>
-    <div class="list-shortcut">
+    <div class="list-shortcut" @touchstart="touchStart">
       <ul>
-        <li v-for="(item,index) in shortcutData" :key="index">{{item.substring(0,1)}}</li>
+        <li
+          class="item"
+          v-for="(item,index) in shortcutData"
+          :key="index"
+          :data="index"
+        >{{item.substring(0,1)}}</li>
       </ul>
     </div>
   </scroll>
@@ -23,6 +28,11 @@
 <script type="text/ecmascript-6">
 import Scroll from 'base/scroll/scroll'
 import { singerAph } from 'api/config'
+import { getData } from 'common/js/dom'
+
+import Vue from 'vue'
+Vue.prototype.bus = new Vue()
+
 export default {
   components: {
     Scroll
@@ -41,7 +51,7 @@ export default {
     }
   },
   computed: {
-    getSatus () {
+    getGroupTitle () {
       return this.singerAph[this.singerData.index]
     },
     // Objecg 转化为 Array 因为数组可以有序，对象无序排列
@@ -51,8 +61,13 @@ export default {
         singerList.push(this.singerAph[val])
       }
       singerList.unshift(singerList.pop())
-      console.log(singerList)
       return singerList
+    }
+  },
+  methods: {
+    touchStart (e) {
+      const elIndex = getData(e.target, 'data')
+      this.bus.$emit('change', elIndex)
     }
   }
 }

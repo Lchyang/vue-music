@@ -8,23 +8,26 @@
 import { getSingerList } from 'api/singer'
 import { ERR_OK } from 'api/config'
 import Listview from 'base/listview/listview'
-
 export default {
   data () {
     return {
       singerData: []
-      // singerAph: singerAph
     }
   },
   components: {
     Listview
   },
-  mounted () {
+  created () {
     this._initSingerList()
   },
+  mounted () {
+    this.bus.$on('change', (index) => {
+      this._initSingerList(index)
+    })
+  },
   methods: {
-    _initSingerList () {
-      getSingerList().then((res) => {
+    _initSingerList (index) {
+      getSingerList(index).then((res) => {
         if (res.response.code === ERR_OK) {
           this.singerData = res.response.singerList.data
           console.log(this.singerData)

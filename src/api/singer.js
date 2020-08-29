@@ -2,7 +2,10 @@ import jsonp from 'common/js/jsonp'
 import { commonParams, options } from './config'
 import axios from 'axios'
 
-export function getSingerList () {
+export function getSingerList (index = -100) {
+  if (index === '0' || index === 0) {
+    index = -100
+  }
   const url = '/api/getSingerList'
 
   const data = Object.assign({}, commonParams, {
@@ -11,31 +14,14 @@ export function getSingerList () {
     hostUin: 0,
     needNewCode: 0,
     format: 'json',
-    // data: {
-    //   comm: { ct: 24, cv: 0 },
-    //   singerList: {
-    //     module: 'Music.SingerListServer',
-    //     method: 'get_singer_list',
-    //     param: { area: -100, sex: -100, genre: -100, index: -100, sin: 0, cur_page: 1 }
-    //   }
-    // },
     data: {
       comm: { ct: 24, cv: 0 },
       singerList: {
         module: 'Music.SingerListServer',
         method: 'get_singer_list',
-        param: { area: 200, sex: -100, genre: -100, index: -100, sin: 0, cur_page: 1 }
+        param: { area: 200, sex: -100, genre: -100, index: parseInt(index), sin: 0, cur_page: 1 }
       }
     }
-    // data: {
-    //   comm: { ct: 24, cv: 0 },
-    //   singerList: {
-    //     module: 'Music.SingerListServer',
-    //     method: 'get_singer_list',
-    //     param: { area: -100, sex: -100, genre: -100, index: -100, sin: 160, cur_page: 3 }
-    //   }
-    // }
-
   })
 
   return axios.get(url, {
