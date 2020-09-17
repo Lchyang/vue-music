@@ -1,6 +1,7 @@
 <template>
   <div class="singer">
-    <listview :singerData="singerData"></listview>
+    <listview :singerData="singerData" @select="ToSingerDetail"></listview>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -11,7 +12,7 @@ import Listview from 'base/listview/listview'
 export default {
   data () {
     return {
-      singerData: []
+      singerData: {}
     }
   },
   components: {
@@ -30,9 +31,13 @@ export default {
       getSingerList(index).then((res) => {
         if (res.response.code === ERR_OK) {
           this.singerData = res.response.singerList.data
-          console.log(this.singerData)
+          // console.log(this.singerData)
         }
       })
+    },
+    ToSingerDetail (item) {
+      this.$router.push({ path: `/singer/${item.singer_id}` })
+      console.log(item)
     }
   }
 }

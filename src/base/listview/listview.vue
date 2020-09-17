@@ -4,7 +4,12 @@
       <li class="list-group">
         <h2 class="list-group-title">{{getGroupTitle}}</h2>
         <ul>
-          <li class="list-group-item" v-for="item in singerData.singerlist" :key="item.singer_id">
+          <li
+            class="list-group-item"
+            @click="selectItem(item)"
+            v-for="item in singerData.singerlist"
+            :key="item.singer_id"
+          >
             <img class="list-group-item-img" v-lazy="item.singer_pic" />
             <p class="list-group-item-name">{{item.singer_name}}</p>
           </li>
@@ -68,6 +73,9 @@ export default {
     touchStart (e) {
       const elIndex = getData(e.target, 'data')
       this.bus.$emit('change', elIndex)
+    },
+    selectItem (item) {
+      this.$emit('select', item)
     }
   }
 }
