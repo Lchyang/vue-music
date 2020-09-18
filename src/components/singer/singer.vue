@@ -14,7 +14,7 @@ const HOT_NAME = '热门'
 export default {
   data () {
     return {
-      singerData: {}
+      singerData: []
     }
   },
   components: {
