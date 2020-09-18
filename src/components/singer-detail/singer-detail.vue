@@ -6,7 +6,13 @@
 
 <script type="text/ecmascript-6">
 import { mapGetters } from 'vuex'
+import { getSingerDetail } from 'api/singer'
 export default {
+  data () {
+    return {
+      singer_id: ''
+    }
+  },
   computed: {
     ...mapGetters([
       'singer'
@@ -15,9 +21,17 @@ export default {
   created () {
     // mapGetter 无效暂时先用这种方法
     console.log(this.$store.state.singer)
+    this.singer_id = this.$store.state.singer.singer_id
     // console.log(this.singer)
+    this._getDetail('002J4UUk29y8BY')
+  },
+  methods: {
+    _getDetail (id) {
+      getSingerDetail(id).then((res) => {
+        console.log(res)
+      })
+    }
   }
-
 }
 </script>
 
