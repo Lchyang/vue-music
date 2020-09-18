@@ -1,25 +1,24 @@
 <template>
-  <scroll class="listview">
+  <scroll class="listview" ref="listview" @scroll="scroll" :listen-scroll="listenScroll">
     <ul>
-      <li class="list-group">
-        <h2 class="list-group-title">{{getGroupTitle}}</h2>
+      <li v-for="(group,index) in singerData" :key="index" class="list-group" ref="listGroup">
+        <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
-          <li class="list-group-item" v-for="item in singerData.singerlist" :key="item.singer_id">
-            <img class="list-group-item-img" v-lazy="item.singer_pic" />
-            <p class="list-group-item-name">{{item.singer_name}}</p>
+          <li
+            @click="selectItem(item)"
+            v-for="(item,index) in group.items"
+            :key="index"
+            class="list-group-item"
+          >
+            <img class="avatar" v-lazy="item.avatar" />
+            <span class="name">{{item.name}}</span>
           </li>
-          <tr></tr>
         </ul>
       </li>
     </ul>
     <div class="list-shortcut" @touchstart="touchStart">
       <ul>
-        <li
-          class="item"
-          v-for="(item,index) in shortcutData"
-          :key="index"
-          :data="index"
-        >{{item.substring(0,1)}}</li>
+        <li class="item" v-for="(item,index) in shortcutData" :key="index" :data="index">{{item}}</li>
       </ul>
     </div>
   </scroll>
@@ -27,7 +26,6 @@
 
 <script type="text/ecmascript-6">
 import Scroll from 'base/scroll/scroll'
-import { singerAph } from 'api/config'
 import { getData } from 'common/js/dom'
 
 import Vue from 'vue'
@@ -39,35 +37,67 @@ export default {
   },
   data () {
     return {
-      singerAph: singerAph
+      touch: {},
+      listHeight: []
     }
   },
   props: {
     singerData: {
-      type: Object,
+      type: Array,
       default () {
-        return {}
+        return []
       }
     }
   },
+  created () {
+    this.listenScroll = true
+  },
   computed: {
-    getGroupTitle () {
-      return this.singerAph[this.singerData.index]
-    },
-    // Objecg 转化为 Array 因为数组可以有序，对象无序排列
     shortcutData () {
-      const singerList = []
-      for (const val in this.singerAph) {
-        singerList.push(this.singerAph[val])
-      }
-      singerList.unshift(singerList.pop())
-      return singerList
+      return this.singerData.map(
+        (group) => {
+          return group.title.substr(0, 1)
+        }
+      )
     }
   },
   methods: {
     touchStart (e) {
-      const elIndex = getData(e.target, 'data')
-      this.bus.$emit('change', elIndex)
+      console.log(e.target)
+      const anchorIndex = getData(e.target, 'data')
+      console.log(anchorIndex)
+      const firstTouch = e.touches[0]
+      this.touch.y1 = firstTouch.pageY
+      this.touch.anchorIndex = anchorIndex
+      this._scrollTo(anchorIndex)
+    },
+    _calculateHeight () {
+      this.listHeight = []
+      const list = this.$refs.listGroup
+      let height = 0
+      this.listHeight.push(height)
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i]
+        height += item.clientHeight
+        this.listHeight.push(height)
+      }
+    },
+    scroll (pos) {
+      this.scrollY = pos.y
+    },
+    _scrollTo (index) {
+      if (!index && index !== 0) {
+        return
+      }
+      if (index < 0) {
+        index = 0
+      } else if (index > this.listHeight.length - 2) {
+        index = this.listHeight.length - 2
+      }
+      console.log(this.$refs.listview)
+      // this.scroll = new Scroll(this.$refs.listview, {})
+      this.scroll.scrollToElement(this.$refs.listGroup[index], 0)
+      this.scrollY = this.$refs.listview.scroll.y
     }
   }
 }
@@ -83,7 +113,6 @@ export default {
   overflow: hidden
   background: $color-background
   .list-group
-    padding-bottom: 30px
     .list-group-title
       height: 30px
       line-height: 30px
@@ -95,13 +124,13 @@ export default {
       display: flex
       overflow: hidden
       align-items: center
-      border-bottom: 0.1px solid $color-dialog-background
+      border-bottom: 0.1px solid $color-highlight-background
       padding: 10px 0 10px 30px
-      .list-group-item-img
+      .avatar
         width: 50px
         height: 50px
         border-radius: 50%
-      .list-group-item-name
+      .name
         margin-left: 20px
         color: $color-text-l
         font-size: $font-size-medium
