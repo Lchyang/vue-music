@@ -1,34 +1,20 @@
 import jsonp from 'common/js/jsonp'
 import { commonParams, options } from './config'
-import axios from 'axios'
 
-export function getSingerList (index = -100) {
-  if (index === '0' || index === 0) {
-    index = -100
-  }
-  const url = '/api/getSingerList'
+export function getSingerList () {
+  const url = 'https://c.y.qq.com/v8/fcg-bin/v8.fcg'
 
   const data = Object.assign({}, commonParams, {
-    '-': 'getUCGI' + (Math.random() + '').replace('0.', ''),
-    platform: 'yqq.json',
+    channel: 'singer',
+    page: 'list',
+    key: 'all_all_all',
+    pagesize: 100,
+    pagenum: 1,
     hostUin: 0,
     needNewCode: 0,
-    format: 'json',
-    data: {
-      comm: { ct: 24, cv: 0 },
-      singerList: {
-        module: 'Music.SingerListServer',
-        method: 'get_singer_list',
-        param: { area: 200, sex: -100, genre: -100, index: parseInt(index), sin: 0, cur_page: 1 }
-      }
-    }
+    platform: 'yqq'
   })
-
-  return axios.get(url, {
-    params: data
-  }).then((res) => {
-    return Promise.resolve(res.data)
-  })
+  return jsonp(url, data, options)
 }
 
 export function getSingerDetail (singerId) {
