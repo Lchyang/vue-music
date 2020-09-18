@@ -1,6 +1,6 @@
 <template>
   <div class="singer">
-    <listview :singerData="singerData"></listview>
+    <listview :data="singerData"></listview>
   </div>
 </template>
 
@@ -28,7 +28,6 @@ export default {
       getSingerList().then((res) => {
         if (res.code === ERR_OK) {
           this.singerData = this._normalizeSinger(res.data.list)
-          console.log(this.singerData)
         }
       })
     },

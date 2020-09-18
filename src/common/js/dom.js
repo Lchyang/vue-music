@@ -15,8 +15,7 @@ export function hasClass (el, className) {
 }
 
 export function getData (el, name, val) {
-  const prefix = ''
-  console.log(el)
+  const prefix = 'data-'
   if (val) {
     return el.setAttribute(prefix + name, val)
   }
