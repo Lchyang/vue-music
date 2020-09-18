@@ -90,6 +90,7 @@ export default {
 @import '~common/stylus/variable'
 
 .recommend
+  touch-action none
   position: fixed
   width: 100%
   top: 88px

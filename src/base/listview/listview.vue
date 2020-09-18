@@ -188,6 +188,7 @@ export default {
 @import '~common/stylus/variable'
 
 .listview
+  touch-action: none
   position: relative
   width: 100%
   height: 100%
