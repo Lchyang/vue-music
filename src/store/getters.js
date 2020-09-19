@@ -1,3 +1,1 @@
-export const singer = state => {
-  return state.singer
-}
+export const singer = state => state.singer

@@ -7,6 +7,7 @@
 <script type="text/ecmascript-6">
 import { mapGetters } from 'vuex'
 import { getSingerDetail } from 'api/singer'
+import { ERR_OK } from 'api/config'
 export default {
   data () {
     return {
@@ -19,16 +20,18 @@ export default {
     ])
   },
   created () {
-    // mapGetter 无效暂时先用这种方法
-    console.log(this.$store.state.singer)
-    this.singer_id = this.$store.state.singer.singer_id
-    // console.log(this.singer)
-    this._getDetail('002J4UUk29y8BY')
+    this._getDetail()
   },
   methods: {
-    _getDetail (id) {
-      getSingerDetail(id).then((res) => {
-        console.log(res)
+    _getDetail () {
+      if (!this.singer.id) {
+        this.$router.push('/singer')
+        return
+      }
+      getSingerDetail(this.singer.id).then((res) => {
+        if (res.code === ERR_OK) {
+          console.log(res.data.list)
+        }
       })
     }
   }
