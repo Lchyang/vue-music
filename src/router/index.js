@@ -12,6 +12,7 @@ export default new Router({
   routes: [
     {
       path: '/',
+      // 跟路径重定向到 recommend
       redirect: '/recommend'
     },
     {

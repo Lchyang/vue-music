@@ -1,3 +1,4 @@
+// jsonp 请求的公共参数
 export const commonParams = {
   g_tk: 5381,
   inCharset: 'utf-8',
@@ -7,6 +8,7 @@ export const commonParams = {
   format: 'jsonp'
 }
 
+// jsonp 调用参数中的options 对象
 export const options = {
   param: 'jsonpCallback',
   prefix: 'jp'
