@@ -8,10 +8,12 @@
 import { mapGetters } from 'vuex'
 import { getSingerDetail } from 'api/singer'
 import { ERR_OK } from 'api/config'
+import { createSong, processSongsUrl, isValidMusic } from 'common/js/song'
 export default {
   data () {
     return {
-      singer_id: ''
+      singer_id: '',
+      songs: []
     }
   },
   computed: {
@@ -30,9 +32,22 @@ export default {
       }
       getSingerDetail(this.singer.id).then((res) => {
         if (res.code === ERR_OK) {
-          console.log(res.data.list)
+          processSongsUrl(this.generatorSong(res.data.list)).then((songs) => {
+            this.songs = songs
+            console.log(this.songs)
+          })
         }
       })
+    },
+    generatorSong (list) {
+      const res = []
+      list.forEach(element => {
+        const { musicData } = element
+        if (isValidMusic(musicData)) {
+          res.push(createSong(musicData))
+        }
+      })
+      return res
     }
   }
 }

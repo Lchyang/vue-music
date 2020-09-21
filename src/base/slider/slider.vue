@@ -16,6 +16,7 @@
 </template>
 
 <script type="text/ecmascript-6">
+// TODO slider 组件的具体实现需要回头再看，暂时看不懂
 import { addClassName } from 'common/js/dom'
 import BScroll from 'better-scroll'
 export default {
