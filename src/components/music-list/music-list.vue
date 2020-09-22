@@ -11,10 +11,17 @@
       </div>
       <div class="filter"></div>
     </div>
+    <scroll class="scroll" :data="songs">
+      <div class="songs-swapper">
+        <song-list :songs="songs"></song-list>
+      </div>
+    </scroll>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+import songList from 'base/song-list/song-list'
+import Scroll from 'base/scroll/scroll'
 export default {
   props: {
     bgImg: {
@@ -23,8 +30,18 @@ export default {
     },
     title: {
       type: String,
-      default: 'hello'
+      default: ''
+    },
+    songs: {
+      type: Array,
+      default () {
+        return []
+      }
     }
+  },
+  components: {
+    songList,
+    Scroll
   },
   computed: {
     bgStyle () {
@@ -88,7 +105,7 @@ export default {
       height: 100%
       background: rgba(7, 17, 27, 0.4)
     .play-button
-      z-index:50
+      z-index: 50
       position: absolute
       bottom: 20px
       left: 50%
@@ -104,6 +121,15 @@ export default {
       .icon-play-mini
         font-size: $font-size-medium-x
         line-height: 30px
-        padding-right:2px
+        padding-right: 2px
         vertical-align: middle
+  // better scroll 滚动的条件父容器的高度小于子容器
+  .scroll
+    position: absolute
+    top:0
+    bottom:0
+    width:100%
+    .songs-swapper
+      padding: 20px 30px
+      background: $color-background
 </style>

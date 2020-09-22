@@ -1,6 +1,6 @@
 <template>
   <transition appear name="detail">
-    <music-list :title="title" :bgImg="bgImg"></music-list>
+    <music-list :title="title" :bgImg="bgImg" :songs="songs"></music-list>
   </transition>
 </template>
 
@@ -22,7 +22,6 @@ export default {
   computed: {
     // 通过 mapGetter 在state 中获取数据，再通过组件中传值把数据传给music-list
     title () {
-      console.log(this.singer.name)
       return this.singer.name
     },
     bgImg () {
@@ -47,7 +46,7 @@ export default {
         if (res.code === ERR_OK) {
           processSongsUrl(this.generatorSong(res.data.list)).then((songs) => {
             this.songs = songs
-            console.log(this.songs)
+            // console.log(this.songs)
           })
         }
       })
