@@ -46,6 +46,7 @@ export function createSong (musicData) {
   })
 }
 
+// 拼接歌手名字
 function filterSinger (singer) {
   const ret = []
   if (!singer) {
@@ -57,10 +58,12 @@ function filterSinger (singer) {
   return ret.join('/')
 }
 
+// 过滤vip付费歌曲
 export function isValidMusic (musicData) {
   return musicData.songid && musicData.albummid && (!musicData.pay || musicData.pay.payalbumprice === 0)
 }
 
+// 对歌曲列表做处理
 export function processSongsUrl (songs) {
   if (!songs.length) {
     return Promise.resolve(songs)
