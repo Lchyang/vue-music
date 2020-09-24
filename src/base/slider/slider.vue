@@ -5,18 +5,18 @@
     </div>
     <div class="dots">
       <!-- TODO :class="{active: ..}" 是什么意思，具体的用法 -->
+      <!-- vue class绑定 当active=true 可以渲染不同的样式 -->
       <span
         class="dot"
-        v-for="(item,index) in dots"
+        v-for="(item, index) in dots"
         :key="index"
-        :class="{active: currentPageIndex === index}"
+        :class="{ active: currentPageIndex === index }"
       ></span>
     </div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-// TODO slider 组件的具体实现需要回头再看，暂时看不懂
 import { addClassName } from 'common/js/dom'
 import BScroll from 'better-scroll'
 export default {
@@ -37,7 +37,7 @@ export default {
     },
     interval: {
       type: Number,
-      default: 6000
+      default: 4000
     }
   },
   mounted () {
@@ -105,7 +105,7 @@ export default {
         // silider 获取当前page的index
         const pageIndex = this.slider.getCurrentPage().pageX
         this.currentPageIndex = pageIndex
-        // FIXME: 当自动手动干预轮播之后时间间隔会改变
+        // FIXED: 当自动手动干预轮播之后时间间隔会改变 _play 函数中 this.timer 没有设置
         if (this.autoPlay) {
           // 手动滑动时清空timer防止自动轮播冲突
           clearTimeout(this.timer)
@@ -115,7 +115,9 @@ export default {
       })
     },
     _play () {
-      setTimeout(() => {
+      // 暂停一段时间继续播放
+      // TODO: timer 是啥没看懂
+      this.timer = setTimeout(() => {
         this.slider.next()
       }, this.interval)
     }
