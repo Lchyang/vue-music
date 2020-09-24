@@ -22,7 +22,7 @@
       @scroll="scroll"
     >
       <div class="songs-swapper">
-        <song-list :songs="songs"></song-list>
+        <song-list :songs="songs" @select="selectItem"></song-list>
       </div>
       <div v-show="!songs.length" class="loading-container">
         <loading></loading>
@@ -35,6 +35,7 @@
 import songList from 'base/song-list/song-list'
 import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
+import { mapActions } from 'vuex'
 
 const HEADER_HEIGHT = 40
 export default {
@@ -90,11 +91,20 @@ export default {
     this.minTranslateY = -this.imageHeight + HEADER_HEIGHT
   },
   methods: {
+    ...mapActions([
+      'selectPlay'
+    ]),
     back () {
       this.$router.back()
     },
     scroll (pos) {
       this.scrollY = pos.y
+    },
+    selectItem (item, index) {
+      this.selectPlay({
+        list: this.songs,
+        index: index
+      })
     }
   },
   watch: {
@@ -112,7 +122,6 @@ export default {
       }
     }
   }
-
 }
 </script>
 

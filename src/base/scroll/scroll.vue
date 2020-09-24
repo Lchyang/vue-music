@@ -5,6 +5,7 @@
 </template>
 
 <script type="text/ecmascript-6">
+// TODO: better scroll 必须清楚，熟练使用
 import BScroll from 'better-scroll'
 
 const DIRECTION_H = 'horizontal'
@@ -50,6 +51,7 @@ export default {
     }
   },
   mounted () {
+    // mouted 里面初始化bs, 间隔时间为20ms 经验值
     setTimeout(() => {
       this._initScroll()
     }, 20)
@@ -60,7 +62,19 @@ export default {
         return
       }
       this.scroll = new BScroll(this.$refs.wrapper, {
+        /*
+        可选值：1、2、3
+        作用：有时候我们需要知道滚动的位置。
+        当 probeType 为 1 的时候，会非实时（屏幕滑动超过一定时间后）派发scroll 事件；
+        当 probeType 为 2 的时候，会在屏幕滑动的过程中实时的派发 scroll 事件；
+        当 probeType 为 3 的时候，不仅在屏幕滑动的过程中，而且在 momentum 滚动动画运行过程中实时派发 scroll 事件。
+        如果没有设置该值，其默认值为 0，即不派发 scroll 事件。
+        */
         probeType: this.probeType,
+        /*
+        作用：better-scroll 默认会阻止浏览器的原生 click 事件。当设置为 true，better-scroll 会派发一个 click 事件，
+        我们会给派发的 event 参数加一个私有属性 _constructed，值为 true。
+        */
         click: this.click,
         eventPassthrough: this.direction === DIRECTION_V ? DIRECTION_H : DIRECTION_V,
         directionLockThreshold: this.directionLockThreshold
