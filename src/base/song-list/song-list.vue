@@ -2,8 +2,8 @@
   <div class="song-list">
     <ul>
       <li class="item" v-for="item of songs" :key="item.id">
-        <div class="title">{{item.name}}</div>
-        <div class="desc">{{desc(item)}}</div>
+        <div class="title">{{ item.name }}</div>
+        <div class="desc">{{ desc(item) }}</div>
       </li>
     </ul>
   </div>
@@ -29,14 +29,15 @@ export default {
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
 @import '~common/stylus/variable'
-  .item
-    padding: 10px 0
-    .title
-      line-height:20px
-      font-size: $font-size-medium
-    .desc
-      line-height:20px
-      font-size: $font-size-medium
-      color: $color-text-d
-      padding-top: 4px
+
+.item
+  padding: 10px 0
+  .title
+    line-height: 20px
+    font-size: $font-size-medium
+  .desc
+    line-height: 20px
+    font-size: $font-size-medium
+    color: $color-text-d
+    padding-top: 4px
 </style>
