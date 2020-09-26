@@ -34,6 +34,14 @@
           <div class="middle-right"></div>
         </div>
         <div class="bottom">
+          <play-bar
+            :playTime="formatTime(currentTime)"
+            :totalTime="formatTime(currentSong.duration)"
+            :timePercent="percent"
+            @percentChanging="percentChanging"
+            @percentChange="percentChange"
+            class="play-bar"
+          ></play-bar>
           <div class="operators">
             <div class="icon i-left">
               <i class="icon-sequence"></i>
@@ -84,6 +92,7 @@
       :src="currentSong.url"
       @canplay="ready"
       @error="error"
+      @timeupdate="timeUpdate"
     ></audio>
   </div>
 </template>
@@ -91,12 +100,17 @@
 import { mapGetters, mapMutations } from 'vuex'
 import animations from 'create-keyframe-animation'
 import { prefixStyle } from 'common/js/dom'
+import playBar from 'base/play-bar/play-bar'
 const transform = prefixStyle('transform')
 export default {
   data () {
     return {
-      songReady: false
+      songReady: false,
+      currentTime: ''
     }
+  },
+  components: {
+    playBar
   },
   computed: {
     playIcon () {
@@ -107,6 +121,9 @@ export default {
     },
     cdRoate () {
       return this.playing ? 'play' : ''
+    },
+    percent () {
+      return this.currentTime / this.currentSong.duration
     },
     ...mapGetters([
       'fullScreen',
@@ -266,6 +283,36 @@ export default {
     },
     error () {
       this.songReady = true
+    },
+    timeUpdate (e) {
+      this.currentTime = e.target.currentTime
+    },
+    formatTime (time_) {
+      const time = time_ | 0
+      const seconds = this.secondsFormat(time % 60)
+      const min = time / 60 | 0
+      // TODO: 时间格式问题
+      return `${min}:${seconds}`
+    },
+    // 格式化time
+    secondsFormat (time) {
+      const timeLen = time.toString().length
+      if (timeLen < 2) {
+        return `0${time}`
+      } else {
+        return time
+      }
+    },
+    percentChanging (percent) {
+      this.currentTime = this.currentSong.duration * percent
+    },
+    percentChange (percent) {
+      const currentTime = this.currentSong.duration * percent
+      this.currentTime = this.$refs.audio.currentTime = currentTime
+      // 如果暂停状态下滑动默认自动播放
+      if (!this.playing) {
+        this.changePlayingState()
+      }
     }
   }
 }
@@ -353,6 +400,11 @@ export default {
       position: absolute
       bottom: 50px
       width: 100%
+      .play-bar
+        box-sizing: border-box
+        width: 80%
+        height: 50px
+        margin: 0 auto
       .operators
         display: flex
         align-items: center
