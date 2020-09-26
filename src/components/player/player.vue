@@ -21,8 +21,13 @@
         <div class="middle">
           <div class="middle-left">
             <div class="cd-wrapper" ref="cdWrapper">
-              <div class="cd">
-                <img class="image" :src="currentSong.image" />
+              <div class="cd" ref="imageWrapper">
+                <img
+                  class="image"
+                  :src="currentSong.image"
+                  :class="cdRoate"
+                  ref="image"
+                />
               </div>
             </div>
           </div>
@@ -33,13 +38,13 @@
             <div class="icon i-left">
               <i class="icon-sequence"></i>
             </div>
-            <div class="icon i-left">
+            <div class="icon i-left" @click="prev">
               <i class="icon-prev"></i>
             </div>
             <div class="icon i-center">
-              <i class="icon-play"></i>
+              <i @click="changePlayingState" :class="playIcon"></i>
             </div>
-            <div class="icon i-right">
+            <div class="icon i-right" @click="next">
               <i class="icon-next"></i>
             </div>
             <div class="icon i-right">
@@ -52,20 +57,34 @@
     <transition name="mini">
       <div class="mini" v-show="!fullScreen" @click="handleFullScreen">
         <div class="icon">
-          <img width="40px" heigth="40px" :src="currentSong.image" />
+          <div class="img-swapper" ref="miniWrapper">
+            <img
+              width="40px"
+              heigth="40px"
+              :src="currentSong.image"
+              :class="cdRoate"
+              ref="miniImage"
+            />
+          </div>
         </div>
         <div class="text">
           <h1>{{ currentSong.name }}</h1>
           <h2>{{ currentSong.singer }}</h2>
         </div>
-        <div class="control">
-          <i class="icon-play-mini"></i>
+        <div class="control" @click.stop="changePlayingState">
+          <i :class="miniPlayIcon"></i>
         </div>
         <div class="control">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
+    <audio
+      ref="audio"
+      :src="currentSong.url"
+      @canplay="ready"
+      @error="error"
+    ></audio>
   </div>
 </template>
 <script type="text/ecmascript-6">
@@ -74,25 +93,68 @@ import animations from 'create-keyframe-animation'
 import { prefixStyle } from 'common/js/dom'
 const transform = prefixStyle('transform')
 export default {
+  data () {
+    return {
+      songReady: false
+    }
+  },
   computed: {
+    playIcon () {
+      return this.playing ? 'icon-pause' : 'icon-play'
+    },
+    miniPlayIcon () {
+      return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+    },
+    cdRoate () {
+      return this.playing ? 'play' : ''
+    },
     ...mapGetters([
       'fullScreen',
       'playList',
-      'currentSong'
+      'currentSong',
+      'playing',
+      'currentIndex'
     ])
   },
-  mounted () {
+  watch: {
+    // 监听歌曲的变化来控制播放与暂停
+    currentSong () {
+      this.$nextTick(() => {
+        this.$refs.audio.play()
+      })
+    },
+    playing (playState) {
+      const audio = this.$refs.audio
+      this.$nextTick(() => {
+        playState ? audio.play() : audio.pause()
+      })
+      if (!playState) {
+        if (this.fullScreen) {
+          this.syncWrapperTransform('imageWrapper', 'image')
+        } else {
+          this.syncWrapperTransform('miniWrapper', 'miniImage')
+        }
+      }
+    }
   },
   methods: {
     ...mapMutations({
-      setFullScreen: 'SET_FULL_SCREEN'
+      setFullScreen: 'SET_FULL_SCREEN',
+      setPlayingState: 'SET_PLAYING_STATE',
+      setCurrentIndex: 'SET_CURRENT_INDEX'
     }),
+    // 暂停播放
+    changePlayingState () {
+      this.setPlayingState(!this.playing)
+    },
     back () {
       this.setFullScreen(false)
     },
+    // 控制播放界面全屏显示
     handleFullScreen () {
       this.setFullScreen(true)
     },
+    // 播放cd缩放动画
     enter (el, done) {
       const { x, y, scale } = this._getPosAndScale()
 
@@ -154,10 +216,58 @@ export default {
       // y轴偏移量
       const y = window.innerHeight - paddingTop - width / 2 - paddingBottom
       return { x, y, scale }
+    },
+    /**
+     * 计算内层Image的transform，并同步到外层容器
+     * 实现cd旋转暂停的时候保持位置
+     * @param wrapper
+     * @param inner
+     */
+    syncWrapperTransform (wrapper, inner) {
+      if (!this.$refs[wrapper]) {
+        return
+      }
+      const imageWrapper = this.$refs[wrapper]
+      const image = this.$refs[inner]
+      const wTransform = getComputedStyle(imageWrapper)[transform]
+      const iTransform = getComputedStyle(image)[transform]
+      imageWrapper.style[transform] = wTransform === 'none' ? iTransform : iTransform.concat(' ', wTransform)
+    },
+    next () {
+      if (!this.songReady) {
+        return
+      }
+      let index = this.currentIndex + 1
+      if (index === this.playList.length) {
+        index = 0
+      }
+      this.setCurrentIndex(index)
+      if (!this.playing) {
+        this.changePlayingState()
+      }
+      this.songReady = false
+    },
+    prev () {
+      if (!this.songReady) {
+        return
+      }
+      let index = this.currentIndex - 1
+      if (index === -1) {
+        index = this.playList.length - 1
+      }
+      this.setCurrentIndex(index)
+      if (!this.playing) {
+        this.changePlayingState()
+      }
+      this.songReady = false
+    },
+    ready () {
+      this.songReady = true
+    },
+    error () {
+      this.songReady = true
     }
-
   }
-
 }
 </script>
 
@@ -181,7 +291,7 @@ export default {
       width: 100%
       height: 100%
       z-index: -1
-      opacity: 1
+      opacity: 0.6
       // TODO: ???? 什么意思？
       filter: blur(20px)
     .top
@@ -224,15 +334,21 @@ export default {
           left: 10%
           width: 80%
           height: 100%
-          .image
-            position: absolute
-            left: 0
-            top: 0
+          .cd
             width: 100%
             height: 100%
-            box-sizing: border-box
             border-radius: 50%
-            border: 10px solid rgba(255, 255, 255, 0.1)
+            .image
+              position: absolute
+              left: 0
+              top: 0
+              width: 100%
+              height: 100%
+              box-sizing: border-box
+              border-radius: 50%
+              border: 10px solid rgba(255, 255, 255, 0.1)
+            .play
+              animation: rotate 20s linear infinite
     .bottom
       position: absolute
       bottom: 50px
@@ -250,7 +366,7 @@ export default {
         .i-center
           text-align: center
           margin: 0 20px
-          .icon-play
+          i
             font-size: 40px
         .i-right
           text-align: left
@@ -278,12 +394,20 @@ export default {
     background: $color-highlight-background
     .icon
       flex: 0 0 40px
-      line-height: 60px
+      width: 40px
+      height: 40px
       padding: 10px
       padding-left: 20px
-      img
-        display: block
-        border-radius: 20px
+      .img-swapper
+        height: 100%
+        width: 100%
+        img
+          display: block
+          border-radius: 20px
+          &.play
+            animation: rotate 10s linear infinite
+          &.pause
+            animation-play-state: paused
     .text
       flex: 1
       display: flex
@@ -314,4 +438,9 @@ export default {
   .mini-enter, .mini-leave-to
     opacity: 0
     transform: translate3d(0, 100px, 0)
+@keyframes rotate
+  0%
+    transform: rotate(0)
+  100%
+    transform: rotate(360deg)
 </style>

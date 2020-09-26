@@ -200,7 +200,8 @@ export default {
     bottom: 0
     width: 100%
     .songs-swapper
-      padding: 20px 30px
+      // 60px 防止mini播放栏挡住song-list内容
+      padding: 20px 30px 60px 30px
       background: $color-background
     .loading-container
       position: absolute
