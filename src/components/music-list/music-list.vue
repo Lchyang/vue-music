@@ -5,7 +5,7 @@
     </div>
     <h1 class="title">{{ title }}</h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
-      <div class="play-button" ref="playBtn" v-show="songs.length > 0">
+      <div class="play-button" ref="playBtn" v-show="songs.length > 0" @click="handleRandomPlay">
         <i class="icon-play-mini"></i>
         随机播放全部
       </div>
@@ -92,7 +92,8 @@ export default {
   },
   methods: {
     ...mapActions([
-      'selectPlay'
+      'selectPlay',
+      'randomPlay'
     ]),
     back () {
       this.$router.back()
@@ -105,6 +106,9 @@ export default {
         list: this.songs,
         index: index
       })
+    },
+    handleRandomPlay () {
+      this.randomPlay({ list: this.songs })
     }
   },
   watch: {

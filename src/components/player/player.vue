@@ -43,8 +43,8 @@
             class="play-bar"
           ></play-bar>
           <div class="operators">
-            <div class="icon i-left">
-              <i class="icon-sequence"></i>
+            <div class="icon i-left" @click="changeMode">
+              <i :class="iconMode"></i>
             </div>
             <div class="icon i-left" @click="prev">
               <i class="icon-prev"></i>
@@ -93,6 +93,7 @@
       @canplay="ready"
       @error="error"
       @timeupdate="timeUpdate"
+      @ended="end"
     ></audio>
   </div>
 </template>
@@ -101,6 +102,7 @@ import { mapGetters, mapMutations } from 'vuex'
 import animations from 'create-keyframe-animation'
 import { prefixStyle } from 'common/js/dom'
 import playBar from 'base/play-bar/play-bar'
+import { playMode } from 'common/js/playModeConfig'
 const transform = prefixStyle('transform')
 export default {
   data () {
@@ -119,6 +121,9 @@ export default {
     miniPlayIcon () {
       return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
     },
+    iconMode () {
+      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.random ? 'icon-random' : 'icon-loop'
+    },
     cdRoate () {
       return this.playing ? 'play' : ''
     },
@@ -130,7 +135,8 @@ export default {
       'playList',
       'currentSong',
       'playing',
-      'currentIndex'
+      'currentIndex',
+      'mode'
     ])
   },
   watch: {
@@ -138,6 +144,9 @@ export default {
     currentSong () {
       this.$nextTick(() => {
         this.$refs.audio.play()
+        this.currentSong.getLyric().then(res => {
+          console.log(res)
+        })
       })
     },
     playing (playState) {
@@ -158,8 +167,13 @@ export default {
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
-      setCurrentIndex: 'SET_CURRENT_INDEX'
+      setCurrentIndex: 'SET_CURRENT_INDEX',
+      setPlayMode: 'SET_PLAY_MODE'
     }),
+    changeMode () {
+      const mode = (this.mode + 1) % 3
+      this.setPlayMode(mode)
+    },
     // 暂停播放
     changePlayingState () {
       this.setPlayingState(!this.playing)
@@ -250,6 +264,7 @@ export default {
       const iTransform = getComputedStyle(image)[transform]
       imageWrapper.style[transform] = wTransform === 'none' ? iTransform : iTransform.concat(' ', wTransform)
     },
+    // 下一首
     next () {
       if (!this.songReady) {
         return
@@ -264,6 +279,7 @@ export default {
       }
       this.songReady = false
     },
+    // 上一首
     prev () {
       if (!this.songReady) {
         return
@@ -291,7 +307,6 @@ export default {
       const time = time_ | 0
       const seconds = this.secondsFormat(time % 60)
       const min = time / 60 | 0
-      // TODO: 时间格式问题
       return `${min}:${seconds}`
     },
     // 格式化time
@@ -312,6 +327,15 @@ export default {
       // 如果暂停状态下滑动默认自动播放
       if (!this.playing) {
         this.changePlayingState()
+      }
+    },
+    // 播放结束后歌曲跳转
+    end () {
+      if (this.mode === playMode.loop) {
+        this.$refs.audio.currentTime = 0
+        this.$refs.audio.play()
+      } else {
+        this.next()
       }
     }
   }

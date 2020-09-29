@@ -1,3 +1,5 @@
+// TODO: 打乱数组的方法收藏
+
 function getRandomInt (min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
