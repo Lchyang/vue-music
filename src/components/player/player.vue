@@ -18,8 +18,13 @@
           <h1 class="title">{{ currentSong.name }}</h1>
           <h2 class="subtitle">{{ currentSong.singer }}</h2>
         </div>
-        <div class="middle">
-          <div class="middle-left">
+        <div
+          class="middle"
+          @touchstart.prevent="middleTouchStart"
+          @touchmove.prevent="middleTouchMove"
+          @touchend="middleTouchEnd"
+        >
+          <div class="middle-left" ref="middleLeft">
             <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd" ref="imageWrapper">
                 <img
@@ -30,10 +35,35 @@
                 />
               </div>
             </div>
+            <div class="lyric-wrapper">
+              <div class="playing-lyric">{{ playingLyric }}</div>
+            </div>
           </div>
-          <div class="middle-right"></div>
+          <scroll
+            class="middle-right"
+            :data="currentLyric && currentLyric.lines"
+            ref="middleRight"
+          >
+            <div class="lyric-wrapper">
+              <div v-if="currentLyric">
+                <li
+                  class="text"
+                  :class="{ current: currentLineNum === index }"
+                  v-for="(item, index) of currentLyric.lines"
+                  :key="item.time"
+                  ref="text"
+                >
+                  {{ item.txt }}
+                </li>
+              </div>
+            </div>
+          </scroll>
         </div>
         <div class="bottom">
+          <div class="dot-wrapper">
+            <span class="dot" :class="{ active: dotShow === 'cd' }"></span>
+            <span class="dot" :class="{ active: dotShow === 'lyric' }"></span>
+          </div>
           <play-bar
             :playTime="formatTime(currentTime)"
             :totalTime="formatTime(currentSong.duration)"
@@ -103,16 +133,23 @@ import animations from 'create-keyframe-animation'
 import { prefixStyle } from 'common/js/dom'
 import playBar from 'base/play-bar/play-bar'
 import { playMode } from 'common/js/playModeConfig'
+import Lyric from 'lyric-parser'
+import Scroll from 'base/scroll/scroll'
 const transform = prefixStyle('transform')
 export default {
   data () {
     return {
       songReady: false,
-      currentTime: ''
+      currentTime: '',
+      currentLyric: null,
+      currentLineNum: 0,
+      dotShow: 'cd',
+      playingLyric: ''
     }
   },
   components: {
-    playBar
+    playBar,
+    Scroll
   },
   computed: {
     playIcon () {
@@ -141,12 +178,14 @@ export default {
   },
   watch: {
     // 监听歌曲的变化来控制播放与暂停
-    currentSong () {
+    currentSong (newSong, oldSong) {
+      if (newSong.id === oldSong.id) { return }
+      if (this.currentLyric) {
+        this.currentLyric.stop()
+      }
       this.$nextTick(() => {
         this.$refs.audio.play()
-        this.currentSong.getLyric().then(res => {
-          console.log(res)
-        })
+        this.getLyric()
       })
     },
     playing (playState) {
@@ -163,6 +202,9 @@ export default {
       }
     }
   },
+  created () {
+    this.touch = {}
+  },
   methods: {
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
@@ -170,6 +212,57 @@ export default {
       setCurrentIndex: 'SET_CURRENT_INDEX',
       setPlayMode: 'SET_PLAY_MODE'
     }),
+    middleTouchStart (e) {
+      this.touch.inited = true
+      const touch = e.touches[0]
+      this.touch.startX = touch.pageX
+      this.touch.startY = touch.pageY
+    },
+    middleTouchMove (e) {
+      if (!this.touch.inited) { return }
+      const touch = e.touches[0]
+      const deltaX = touch.pageX - this.touch.startX
+      const deltaY = touch.pageY - this.touch.startY
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        return 0
+      }
+      const left = this.dotShow === 'cd' ? 0 : -window.innerWidth
+      const offsetWidth = Math.min(0, Math.max(left + deltaX, -window.innerWidth))
+      this.touch.touchPersent = Math.abs(offsetWidth / window.innerWidth)
+      this.$refs.middleRight.$el.style.transform = `translate3d(${offsetWidth}px, 0, 0)`
+      this.$refs.middleRight.$el.style.transitionDuration = 0
+      this.$refs.middleLeft.style.opacity = 1 - this.touch.touchPersent
+      // transitionDuration 动画过度时间
+      this.$refs.middleLeft.style.transitionDuration = 0
+    },
+    middleTouchEnd () {
+      let offsetWidth
+      let opacity
+      if (this.dotShow === 'cd') {
+        if (this.touch.touchPersent > 0.1) {
+          offsetWidth = -window.innerWidth
+          this.dotShow = 'lyric'
+          opacity = 0
+        } else {
+          offsetWidth = 0
+          opacity = 1
+        }
+      } else {
+        if (this.touch.touchPersent < 0.9) {
+          offsetWidth = 0
+          this.dotShow = 'cd'
+          opacity = 1
+        } else {
+          offsetWidth = -window.innerWidth
+          opacity = 0
+        }
+      }
+      const time = 300
+      this.$refs.middleRight.$el.style.transform = `translate3d(${offsetWidth}px, 0, 0)`
+      this.$refs.middleRight.$el.style.transitionDuration = `${time}ms`
+      this.$refs.middleLeft.style.opacity = opacity
+      this.$refs.middleLeft.style.transitionDuration = `${time}ms`
+    },
     changeMode () {
       const mode = (this.mode + 1) % 3
       this.setPlayMode(mode)
@@ -177,6 +270,9 @@ export default {
     // 暂停播放
     changePlayingState () {
       this.setPlayingState(!this.playing)
+      if (this.currentLyric) {
+        this.currentLyric.togglePlay()
+      }
     },
     back () {
       this.setFullScreen(false)
@@ -265,6 +361,9 @@ export default {
       imageWrapper.style[transform] = wTransform === 'none' ? iTransform : iTransform.concat(' ', wTransform)
     },
     // 下一首
+    // TODO: 处理歌曲列表边界值，当歌曲列表为1的时候
+    // TODO: 处理微信后台播放的问题 7-24
+    // TODO: 播放器底部高度适配 7-25
     next () {
       if (!this.songReady) {
         return
@@ -328,15 +427,46 @@ export default {
       if (!this.playing) {
         this.changePlayingState()
       }
+      // 跟随进度条切换歌词时间
+      if (this.currentLyric) {
+        this.currentLyric.seek(currentTime * 1000)
+      }
     },
     // 播放结束后歌曲跳转
     end () {
       if (this.mode === playMode.loop) {
         this.$refs.audio.currentTime = 0
         this.$refs.audio.play()
+        // 当循环播放时，播放结束时歌词时间重置
+        if (this.currentLyric) {
+          this.currentLyric.seek(0)
+        }
       } else {
         this.next()
       }
+    },
+    getLyric () {
+      this.currentSong.getLyric().then(res => {
+        this.currentLyric = new Lyric(res, this.handleLyric)
+        this.currentLineNum = this.currentLyric
+        if (this.playing) {
+          this.currentLyric.play()
+        }
+      }).catch(() => {
+        this.currentLyric = null
+        this.playingLyric = ''
+        this.currentLineNum = 0
+      })
+    },
+    handleLyric ({ lineNum, txt }) {
+      this.currentLineNum = lineNum
+      if (lineNum > 5) {
+        const El = this.$refs.text[lineNum - 5]
+        this.$refs.middleRight.scrollToElement(El)
+      } else {
+        this.$refs.middleRight.scrollTo(0, 0, 1000)
+      }
+      this.playingLyric = txt
     }
   }
 }
@@ -393,8 +523,10 @@ export default {
       top: 80px
       width: 100%
       bottom: 170px
-      // white-space: nowrap
+      white-space: nowrap
       .middle-left
+        vertical-align: top
+        display: inline-block
         position: relative
         width: 100%
         height: 0
@@ -420,10 +552,49 @@ export default {
               border: 10px solid rgba(255, 255, 255, 0.1)
             .play
               animation: rotate 20s linear infinite
+        .lyric-wrapper
+          margin: 30px auto 0 auto
+          width: 80%
+          text-align: center
+          .playing-lyric
+            height: 20px
+            line-height: 20px
+            font-size: $fonst-size-medium
+            color: $color-text-l
+      .middle-right
+        vertical-align: top
+        display: inline-block
+        width: 100%
+        height: 100%
+        overflow: hidden
+        .lyric-wrapper
+          width: 80%
+          text-align: center
+          margin: 0 auto
+          overflow: hidden
+          .text
+            font-size: $font-size-medium
+            color: $color-text-l
+            line-height: 32px
+            &.current
+              color: $color-text
     .bottom
       position: absolute
       bottom: 50px
       width: 100%
+      .dot-wrapper
+        text-align: center
+        .dot
+          display: inline-block
+          height: 8px
+          width: 8px
+          background: $color-text-ll
+          margin: 0 4px
+          border-radius: 50%
+          &.active
+            width: 20px
+            border-radius: 5px
+            background: $color-text-ll
       .play-bar
         box-sizing: border-box
         width: 80%
