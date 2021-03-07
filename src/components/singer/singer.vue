@@ -38,12 +38,12 @@ export default {
       })
       this.setSinger(singer)
     },
-    _getSingerList () {
-      getSingerList().then((res) => {
-        if (res.code === ERR_OK) {
-          this.singerData = this._normalizeSinger(res.data.list)
-        }
-      })
+    async _getSingerList () {
+      const res = await getSingerList()
+      console.log(res, 'hello world')
+      if (res.code === ERR_OK) {
+        this.singerData = this._normalizeSinger(res.data.list)
+      }
     },
     _normalizeSinger (list) {
       const map = {
