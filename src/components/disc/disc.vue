@@ -1,5 +1,4 @@
 <template>
-<<<<<<< HEAD
   <transition appear name="detail">
     <music-list :title="title" :bgImg="bgImg" :songs="songs"></music-list>
   </transition>
@@ -21,10 +20,3 @@ export default {
 .detail-enter-active, .detail-leave-active
   transition: all 0.3s
 </style>
-=======
-</template>
-<script>
-</script>
-<style>
-</style>
->>>>>>> b0de5f2cd9a377280e0a4f41c391421fb23154cf
