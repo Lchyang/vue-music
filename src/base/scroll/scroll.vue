@@ -21,6 +21,7 @@ export default {
       type: Boolean,
       default: false
     },
+    // 是否要监听滚动事件
     listenScroll: {
       type: Boolean,
       default: false

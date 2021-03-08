@@ -100,15 +100,15 @@ export default {
       const firstTouch = e.touches[0]
       this.touch.y1 = firstTouch.pageY
       this.touch.anchorIndex = anchorIndex
-
       this._scrollTo(anchorIndex)
     },
     onShortcutTouchMove (e) {
       const firstTouch = e.touches[0]
       this.touch.y2 = firstTouch.pageY
+      // 因为|这个是或位操作符，意思是先将数值转换成32位二进制整数值（如果有小数则忽略），再对二进制上每一位进行或运算，得出结果；
+      // 这里xxx|0，因为0的二进制就是0000000...00一共32位（32个0），无论任何数对0进行或运算都是原来的数，因此可以用它来进行向下取整
       const delta = (this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT | 0
       const anchorIndex = parseInt(this.touch.anchorIndex) + delta
-
       this._scrollTo(anchorIndex)
     },
     refresh () {
@@ -137,7 +137,7 @@ export default {
       } else if (index > this.listHeight.length - 2) {
         index = this.listHeight.length - 2
       }
-      this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
+      this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 1500)
       this.scrollY = this.$refs.listview.scroll.y
     }
   },
