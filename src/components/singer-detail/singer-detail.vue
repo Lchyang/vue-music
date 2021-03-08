@@ -35,21 +35,20 @@ export default {
     this._getDetail()
   },
   methods: {
-    _getDetail () {
+    async _getDetail () {
       // 直接在歌手详情页刷新是跳转回歌手页
       if (!this.singer.id) {
         this.$router.push('/singer')
         return
       }
       // 获取歌手详情
-      getSingerDetail(this.singer.id).then((res) => {
-        if (res.code === ERR_OK) {
-          processSongsUrl(this.generatorSong(res.data.list)).then((songs) => {
-            this.songs = songs
-            // console.log(this.songs)
-          })
-        }
-      })
+      const res = await getSingerDetail(this.singer.id)
+      console.log(res, 'res')
+      if (res.code === ERR_OK) {
+        const songs = await processSongsUrl(this.generatorSong(res.data.list))
+        console.log(songs, 'songs')
+        this.songs = songs
+      }
     },
     // 获取歌曲对象
     generatorSong (list) {
@@ -60,6 +59,7 @@ export default {
           res.push(createSong(musicData))
         }
       })
+      console.log(res, 'generatorSong')
       return res
     }
   }
@@ -70,6 +70,6 @@ export default {
 // singer->singer-detail 的过渡动画
 .detail-enter, .detail-leave-to
   transform: translate3d(100%, 0, 0)
-.detail-enter-active, .detail-leave-active
+.detail-enter-active .detail-leave-active
   transition: all 0.3s
 </style>
