@@ -115,6 +115,31 @@ module.exports = {
           console.log(e)
         })
       })
+
+      // 获取歌单里面歌曲
+      app.get('/api/getCdInfo', function (req, res) {
+        const url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+        axios.get(url, {
+          headers: {
+            referer: 'https://c.y.qq.com/',
+            host: 'c.y.qq.com'
+          },
+          params: req.query
+        }).then((response) => {
+          let ret = response.data
+          if (typeof ret === 'string') {
+            const reg = /^\w+\(({.+})\)$/
+            const matches = ret.match(reg)
+            if (matches) {
+              ret = JSON.parse(matches[1])
+            }
+          }
+          res.json(ret)
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
+
       // 获取歌曲数据接口
       app.get('/api/lyric', function (req, res) {
         var url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
