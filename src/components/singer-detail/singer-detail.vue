@@ -43,10 +43,8 @@ export default {
       }
       // 获取歌手详情
       const res = await getSingerDetail(this.singer.id)
-      console.log(res, 'res')
       if (res.code === ERR_OK) {
         const songs = await processSongsUrl(this.generatorSong(res.data.list))
-        console.log(songs, 'songs')
         this.songs = songs
       }
     },
@@ -59,7 +57,6 @@ export default {
           res.push(createSong(musicData))
         }
       })
-      console.log(res, 'generatorSong')
       return res
     }
   }
