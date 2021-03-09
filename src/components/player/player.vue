@@ -493,7 +493,7 @@ export default {
       height: 100%
       z-index: -1
       opacity: 0.6
-      // TODO: ???? 什么意思？
+      // 虚化效果
       filter: blur(20px)
     .top
       position: relative
