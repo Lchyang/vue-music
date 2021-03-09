@@ -28,6 +28,7 @@ import scroll from 'base/scroll/scroll'
 import { getTopList, getMusicList } from 'api/rank'
 import { ERR_OK } from 'api/config'
 import { playlistMixin } from 'common/js/mixin'
+import { mapMutations } from 'vuex'
 export default {
   mixins: [playlistMixin],
   components: {
@@ -41,6 +42,10 @@ export default {
     }
   },
   methods: {
+    selectItem (item) {
+      this.$router.push({ path: `/rank/${item.id}` })
+      this.setTopList(item)
+    },
     handlePlaylist (playlist) {
       const bottom = playlist.length ? '60px' : ''
       this.$refs.rank.style.bottom = bottom
@@ -57,7 +62,10 @@ export default {
       if (res.code === ERR_OK) {
         this.topList = res.data.topList
       }
-    }
+    },
+    ...mapMutations({
+      setTopList: 'SET_TOP_LIST'
+    })
   },
   async created () {
     this._initSongList()
