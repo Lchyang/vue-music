@@ -22,7 +22,7 @@
       @scroll="scroll"
     >
       <div class="songs-swapper">
-        <song-list :songs="songs" @select="selectItem"></song-list>
+        <song-list :songs="songs" @select="selectItem" :rank="rank"></song-list>
       </div>
       <div v-show="!songs.length" class="loading-container">
         <loading></loading>
@@ -59,6 +59,10 @@ export default {
       default () {
         return []
       }
+    },
+    rank: {
+      type: Boolean,
+      default: false
     }
   },
   components: {

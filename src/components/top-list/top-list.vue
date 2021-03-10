@@ -1,11 +1,14 @@
 <template>
   <transition name="top">
-    <music-list :title="title" :bgImg="bgImg"></music-list>
+    <music-list :rank="rank" :title="title" :bgImg="bgImg" :songs="songs"></music-list>
   </transition>
 </template>
 <script>
 import MusicList from '../music-list/music-list.vue'
 import { mapGetters } from 'vuex'
+import { getMusicList } from 'api/rank'
+import { ERR_OK } from 'api/config'
+import { createSong, isValidMusic, processSongsUrl } from 'common/js/song'
 export default {
   components: {
     MusicList
@@ -16,11 +19,43 @@ export default {
       return this.toplist.topTitle
     },
     bgImg () {
-      return this.toplist.picUrl
+      if (this.songs.length) {
+        return this.songs[0].image
+      } else {
+        return ''
+      }
     }
   },
-  mounted () {
-    console.log(this.toplist)
+  data () {
+    return {
+      songs: [],
+      rank: true
+    }
+  },
+  methods: {
+    async _initMusicList () {
+      if (!this.toplist.id) {
+        this.$router.push({ path: '/rank' })
+        return
+      }
+      const res = await getMusicList(this.toplist.id)
+      if (res.code === ERR_OK) {
+        this.songs = await processSongsUrl(this.normalMusic(res.songlist))
+      }
+    },
+    normalMusic (songlist) {
+      const ret = []
+      songlist.forEach((item) => {
+        const musicData = item.data
+        if (isValidMusic(musicData)) {
+          ret.push(createSong(musicData))
+        }
+      })
+      return ret
+    }
+  },
+  created () {
+    this._initMusicList()
   }
 }
 </script>
