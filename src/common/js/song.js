@@ -47,7 +47,7 @@ export function createSong (musicData) {
 }
 
 // 拼接歌手名字
-function filterSinger (singer) {
+export function filterSinger (singer) {
   const ret = []
   if (!singer) {
     return ''
