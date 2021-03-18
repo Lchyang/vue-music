@@ -484,7 +484,7 @@ export default {
     left: 0
     bottom: 0
     right: 0
-    z-index: 50
+    z-index: 150
     .background
       position: absolute
       left: 0
@@ -639,6 +639,7 @@ export default {
     width: 100%
     height: 60px
     background: $color-highlight-background
+    z-index:150
     .icon
       flex: 0 0 40px
       width: 40px

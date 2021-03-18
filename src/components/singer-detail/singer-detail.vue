@@ -64,9 +64,8 @@ export default {
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
-// singer->singer-detail 的过渡动画
 .detail-enter, .detail-leave-to
   transform: translate3d(100%, 0, 0)
-.detail-enter-active .detail-leave-active
+.detail-enter-active, .detail-leave-active
   transition: all 0.3s
 </style>

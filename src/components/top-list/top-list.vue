@@ -1,5 +1,5 @@
 <template>
-  <transition name="top">
+  <transition appear name="detail">
     <music-list :rank="rank" :title="title" :bgImg="bgImg" :songs="songs"></music-list>
   </transition>
 </template>
@@ -61,8 +61,12 @@ export default {
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
-.top-enter-actve, .top-leave-active
-  transition: all 0.3s ease
-.top-enter, .top-leave-to
+// .top-enter, .top-leave-to
+//   transform: translate3d(100%, 0, 0)
+// .top-enter-active, .top-leave-active
+//   transition: all 0.3s
+.detail-enter, .detail-leave-to
   transform: translate3d(100%, 0, 0)
+.detail-enter-active, .detail-leave-active
+  transition: all 0.3s ease
 </style>

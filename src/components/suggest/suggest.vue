@@ -1,6 +1,6 @@
 
 <template>
-  <div class="suggest">
+  <scroll ref="scroll" class="suggest" :pullup="pullup" :data="result" @scrollToEnd="searchMore">
     <ul class="suggest-list">
       <li
         @click="selectItem(item)"
@@ -15,22 +15,31 @@
           <p class="text" v-html="getDisplayName(item)"></p>
         </div>
       </li>
-      <!-- <loading v-show="hasMore" title=""></loading> -->
+      <loading v-show="hasMore" title=""></loading>
     </ul>
-  </div>
+  </scroll>
 </template>
 
 <script>
 import { search } from 'api/search'
 import { ERR_OK } from 'api/config'
 import { createSong, isValidMusic } from 'common/js/song'
+import scroll from '../../base/scroll/scroll.vue'
+import loading from '@/base/loading/loading'
+import Singer from 'common/js/singer'
+import { mapMutations } from 'vuex'
 
 const TYPE_SINGER = 'singer'
+const perpage = 30
+
 export default {
+  components: { scroll, loading },
   data () {
     return {
       page: 1,
-      result: []
+      result: [],
+      pullup: true,
+      hasMore: true
     }
   },
   props: {
@@ -44,10 +53,32 @@ export default {
     }
   },
   methods: {
+    /**
+     * 监听query变化时请求数据
+     */
     async search () {
-      const res = await search(this.query, this.page, this.showSinger)
+      // 重置结果和页数hsamore
+      this.result = []
+      this.page = 1
+      this.hasMore = true
+      const res = await search(this.query, this.page, this.showSinger, perpage)
       if (res.code === ERR_OK) {
         this.result = this._genResult(res.data)
+        this._checkMore(res.data)
+      }
+    },
+    /**
+     * 下拉到底部搜索更多
+     */
+    async searchMore () {
+      if (!this.searchMore) {
+        return
+      }
+      this.page++
+      const res = await search(this.query, this.page, this.showSinger, perpage)
+      if (res.code === ERR_OK) {
+        this.result = this.result.concat(this._genResult(res.data))
+        this._checkMore(res.data)
       }
     },
     getIconCls (item) {
@@ -64,6 +95,28 @@ export default {
         return `${item.name}-${(item.singer)}`
       }
     },
+    selectItem (item) {
+      if (item.type === TYPE_SINGER) {
+        const singer = new Singer({
+          id: item.singermid,
+          name: item.singername
+        })
+        this.setSinger(singer)
+        this.$router.push({ path: `/search/${singer.id}` })
+      }
+    },
+    /**
+     * 根据当前数据判断是否还有多余的数据需要请求
+     */
+    _checkMore (data) {
+      const song = data.song
+      if (!song.list.length || (song.curnum + (song.curpage - 1) * perpage) >= song.totalnum) {
+        this.hasMore = false
+      }
+    },
+    /**
+     * 格式化数据
+     */
     _genResult (data) {
       let ret = []
       if (data.zhida && data.zhida.singerid) {
@@ -74,6 +127,9 @@ export default {
       }
       return ret
     },
+    /**
+     * 格式化数据
+     */
     _normalizeSongs (list) {
       const ret = []
       list.forEach((musicData) => {
@@ -82,7 +138,8 @@ export default {
         }
       })
       return ret
-    }
+    },
+    ...mapMutations({ setSinger: 'SET_SINGER' })
   },
   watch: {
     query () {
