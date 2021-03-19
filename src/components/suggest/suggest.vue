@@ -23,11 +23,11 @@
 <script>
 import { search } from 'api/search'
 import { ERR_OK } from 'api/config'
-import { createSong, isValidMusic } from 'common/js/song'
+import { createSong, isValidMusic, processSongsUrl } from 'common/js/song'
 import scroll from '../../base/scroll/scroll.vue'
 import loading from '@/base/loading/loading'
 import Singer from 'common/js/singer'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapActions } from 'vuex'
 
 const TYPE_SINGER = 'singer'
 const perpage = 30
@@ -63,7 +63,7 @@ export default {
       this.hasMore = true
       const res = await search(this.query, this.page, this.showSinger, perpage)
       if (res.code === ERR_OK) {
-        this.result = this._genResult(res.data)
+        this.result = await this._genResult(res.data)
         this._checkMore(res.data)
       }
     },
@@ -77,7 +77,7 @@ export default {
       this.page++
       const res = await search(this.query, this.page, this.showSinger, perpage)
       if (res.code === ERR_OK) {
-        this.result = this.result.concat(this._genResult(res.data))
+        this.result = this.result.concat(await this._genResult(res.data))
         this._checkMore(res.data)
       }
     },
@@ -95,7 +95,7 @@ export default {
         return `${item.name}-${(item.singer)}`
       }
     },
-    selectItem (item) {
+    async selectItem (item) {
       if (item.type === TYPE_SINGER) {
         const singer = new Singer({
           id: item.singermid,
@@ -103,6 +103,8 @@ export default {
         })
         this.setSinger(singer)
         this.$router.push({ path: `/search/${singer.id}` })
+      } else {
+        this.insertSong(item)
       }
     },
     /**
@@ -117,13 +119,14 @@ export default {
     /**
      * 格式化数据
      */
-    _genResult (data) {
+    async _genResult (data) {
       let ret = []
       if (data.zhida && data.zhida.singerid) {
         ret.push({ ...data.zhida, ...{ type: TYPE_SINGER } })
       }
       if (data.song) {
-        ret = ret.concat(this._normalizeSongs(data.song.list))
+        const songs = await processSongsUrl(this._normalizeSongs(data.song.list))
+        ret = ret.concat(songs)
       }
       return ret
     },
@@ -139,7 +142,8 @@ export default {
       })
       return ret
     },
-    ...mapMutations({ setSinger: 'SET_SINGER' })
+    ...mapMutations({ setSinger: 'SET_SINGER' }),
+    ...mapActions(['insertSong'])
   },
   watch: {
     query () {
