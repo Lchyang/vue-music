@@ -1,6 +1,6 @@
 
 <template>
-  <scroll ref="scroll" class="suggest" :pullup="pullup" :data="result" @scrollToEnd="searchMore">
+  <scroll ref="scroll" class="suggest" :pullup="pullup" :data="result" @scrollToEnd="searchMore" @beforeScroll="listScroll">
     <ul class="suggest-list">
       <li
         @click="selectItem(item)"
@@ -39,7 +39,8 @@ export default {
       page: 1,
       result: [],
       pullup: true,
-      hasMore: true
+      hasMore: true,
+      beforeScroll: true
     }
   },
   props: {
@@ -66,6 +67,9 @@ export default {
         this.result = await this._genResult(res.data)
         this._checkMore(res.data)
       }
+    },
+    listScroll () {
+      this.$emit('listScroll')
     },
     /**
      * 下拉到底部搜索更多
