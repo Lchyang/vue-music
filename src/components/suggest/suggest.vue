@@ -110,6 +110,7 @@ export default {
       } else {
         this.insertSong(item)
       }
+      this.$emit('select')
     },
     /**
      * 根据当前数据判断是否还有多余的数据需要请求
