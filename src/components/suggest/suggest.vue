@@ -16,6 +16,9 @@
         </div>
       </li>
       <loading v-show="hasMore" title=""></loading>
+      <div class="no-result-wrapper" v-show="!hasMore && !result.length">
+        <no-result title="抱歉，暂无数据"></no-result>
+      </div>
     </ul>
   </scroll>
 </template>
@@ -28,12 +31,13 @@ import scroll from '../../base/scroll/scroll.vue'
 import loading from '@/base/loading/loading'
 import Singer from 'common/js/singer'
 import { mapMutations, mapActions } from 'vuex'
+import NoResult from '../../base/no-result/no-result.vue'
 
 const TYPE_SINGER = 'singer'
 const perpage = 30
 
 export default {
-  components: { scroll, loading },
+  components: { scroll, loading, NoResult },
   data () {
     return {
       page: 1,
@@ -125,7 +129,12 @@ export default {
         ret.push({ ...data.zhida, ...{ type: TYPE_SINGER } })
       }
       if (data.song) {
-        const songs = await processSongsUrl(this._normalizeSongs(data.song.list))
+        let songs = []
+        try {
+          songs = await processSongsUrl(this._normalizeSongs(data.song.list))
+        } catch (err) {
+          console.log(err)
+        }
         ret = ret.concat(songs)
       }
       return ret
