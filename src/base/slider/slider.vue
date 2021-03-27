@@ -4,8 +4,6 @@
       <slot></slot>
     </div>
     <div class="dots">
-      <!-- TODO :class="{active: ..}" 是什么意思，具体的用法 -->
-      <!-- vue class绑定 当active=true 可以渲染不同的样式 -->
       <span
         class="dot"
         v-for="(item, index) in dots"
@@ -117,6 +115,7 @@ export default {
     _play () {
       // 暂停一段时间继续播放
       // TODO: timer 是啥没看懂
+      // timer 是一个定时器，方便其他地方进行清空
       this.timer = setTimeout(() => {
         this.slider.next()
       }, this.interval)
