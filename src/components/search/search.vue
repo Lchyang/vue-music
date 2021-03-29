@@ -32,7 +32,7 @@
     </scroll>
     </div>
     <div class="search-result" v-show="query">
-      <suggest :query="query" @listScroll="blurInput" @select="saveHistory"></suggest>
+      <suggest :query="query" @listScroll="blurInput" @select="saveSearch"></suggest>
     </div>
     <confirm text="是否清空所有搜索历史" confirmBtnText="清空" ref="confirm" @confirm="deleteAll"></confirm>
     <router-view></router-view>
@@ -47,10 +47,10 @@ import Scroll from 'base/scroll/scroll.vue'
 import Suggest from 'components/suggest/suggest'
 import { getHotKey } from 'api/search'
 import { ERR_OK } from 'api/config'
-import { mapActions, mapGetters } from 'vuex'
-import { playlistMixin } from 'common/js/mixin'
+import { mapActions } from 'vuex'
+import { playlistMixin, searchMixin } from 'common/js/mixin'
 export default {
-  mixins: [playlistMixin],
+  mixins: [playlistMixin, searchMixin],
   components: {
     SearchBox,
     Suggest,
@@ -60,14 +60,10 @@ export default {
   },
   data () {
     return {
-      hotKeys: [],
-      query: ''
+      hotKeys: []
     }
   },
   computed: {
-    ...mapGetters([
-      'searchHistory'
-    ]),
     shortcut () {
       return this.hotKeys.concat(this.searchHistory)
     }
@@ -90,20 +86,11 @@ export default {
     onQueryChange (query) {
       this.query = query
     },
-    addQuery (key) {
-      this.$refs.searchBox.setQuery(key)
-    },
-    blurInput () {
-      this.$refs.searchBox.blur()
-    },
     async _initGetHotKey () {
       const res = await getHotKey()
       if (res.code === ERR_OK) {
         this.hotKeys = res.data.hotkey.slice(0, 10)
       }
-    },
-    saveHistory () {
-      this.saveSearchHistory(this.query)
     },
     deleteOne (item) {
       this.deleteSearchHistory(item)
@@ -114,7 +101,7 @@ export default {
     showConfirm () {
       this.$refs.confirm.show()
     },
-    ...mapActions(['saveSearchHistory', 'deleteSearchHistory', 'clearSearchHistory'])
+    ...mapActions(['clearSearchHistory'])
   },
   created () {
     this._initGetHotKey()
