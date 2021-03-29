@@ -112,7 +112,7 @@
         <div class="control" @click.stop="changePlayingState">
           <i :class="miniPlayIcon"></i>
         </div>
-        <div class="control">
+        <div class="control" @click.stop="showPlayList">
           <i class="icon-playlist"></i>
         </div>
       </div>
@@ -125,6 +125,7 @@
       @timeupdate="timeUpdate"
       @ended="end"
     ></audio>
+    <play-list ref="playList"></play-list>
   </div>
 </template>
 <script type="text/ecmascript-6">
@@ -135,8 +136,11 @@ import playBar from 'base/play-bar/play-bar'
 import { playMode } from 'common/js/playModeConfig'
 import Lyric from 'lyric-parser'
 import Scroll from 'base/scroll/scroll'
+import PlayList from 'components/play-list/play-list'
+import { playerMixin } from 'common/js/mixin'
 const transform = prefixStyle('transform')
 export default {
+  mixins: [playerMixin],
   data () {
     return {
       songReady: false,
@@ -149,7 +153,8 @@ export default {
   },
   components: {
     playBar,
-    Scroll
+    Scroll,
+    PlayList
   },
   computed: {
     playIcon () {
@@ -157,9 +162,6 @@ export default {
     },
     miniPlayIcon () {
       return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
-    },
-    iconMode () {
-      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.random ? 'icon-random' : 'icon-loop'
     },
     cdRoate () {
       return this.playing ? 'play' : ''
@@ -169,16 +171,14 @@ export default {
     },
     ...mapGetters([
       'fullScreen',
-      'playList',
-      'currentSong',
       'playing',
-      'currentIndex',
-      'mode'
+      'currentIndex'
     ])
   },
   watch: {
     // 监听歌曲的变化来控制播放与暂停
     currentSong (newSong, oldSong) {
+      if (!newSong.id) { return }
       if (newSong.id === oldSong.id) { return }
       if (this.currentLyric) {
         this.currentLyric.stop()
@@ -207,11 +207,11 @@ export default {
   },
   methods: {
     ...mapMutations({
-      setFullScreen: 'SET_FULL_SCREEN',
-      setPlayingState: 'SET_PLAYING_STATE',
-      setCurrentIndex: 'SET_CURRENT_INDEX',
-      setPlayMode: 'SET_PLAY_MODE'
+      setFullScreen: 'SET_FULL_SCREEN'
     }),
+    showPlayList () {
+      this.$refs.playList.show()
+    },
     middleTouchStart (e) {
       this.touch.inited = true
       const touch = e.touches[0]
@@ -262,10 +262,6 @@ export default {
       this.$refs.middleRight.$el.style.transitionDuration = `${time}ms`
       this.$refs.middleLeft.style.opacity = opacity
       this.$refs.middleLeft.style.transitionDuration = `${time}ms`
-    },
-    changeMode () {
-      const mode = (this.mode + 1) % 3
-      this.setPlayMode(mode)
     },
     // 暂停播放
     changePlayingState () {

@@ -1,6 +1,6 @@
 
 <template>
-  <scroll ref="scroll" class="suggest" :pullup="pullup" :data="result" @scrollToEnd="searchMore">
+  <scroll ref="scroll" class="suggest" :pullup="pullup" :data="result" @scrollToEnd="searchMore" @beforeScroll="listScroll">
     <ul class="suggest-list">
       <li
         @click="selectItem(item)"
@@ -16,6 +16,9 @@
         </div>
       </li>
       <loading v-show="hasMore" title=""></loading>
+      <div class="no-result-wrapper" v-show="!hasMore && !result.length">
+        <no-result title="抱歉，暂无数据"></no-result>
+      </div>
     </ul>
   </scroll>
 </template>
@@ -28,18 +31,20 @@ import scroll from '../../base/scroll/scroll.vue'
 import loading from '@/base/loading/loading'
 import Singer from 'common/js/singer'
 import { mapMutations, mapActions } from 'vuex'
+import NoResult from '../../base/no-result/no-result.vue'
 
 const TYPE_SINGER = 'singer'
 const perpage = 30
 
 export default {
-  components: { scroll, loading },
+  components: { scroll, loading, NoResult },
   data () {
     return {
       page: 1,
       result: [],
       pullup: true,
-      hasMore: true
+      hasMore: true,
+      beforeScroll: true
     }
   },
   props: {
@@ -66,6 +71,9 @@ export default {
         this.result = await this._genResult(res.data)
         this._checkMore(res.data)
       }
+    },
+    listScroll () {
+      this.$emit('listScroll')
     },
     /**
      * 下拉到底部搜索更多
@@ -106,6 +114,7 @@ export default {
       } else {
         this.insertSong(item)
       }
+      this.$emit('select')
     },
     /**
      * 根据当前数据判断是否还有多余的数据需要请求
@@ -125,7 +134,12 @@ export default {
         ret.push({ ...data.zhida, ...{ type: TYPE_SINGER } })
       }
       if (data.song) {
-        const songs = await processSongsUrl(this._normalizeSongs(data.song.list))
+        let songs = []
+        try {
+          songs = await processSongsUrl(this._normalizeSongs(data.song.list))
+        } catch (err) {
+          console.log(err)
+        }
         ret = ret.concat(songs)
       }
       return ret

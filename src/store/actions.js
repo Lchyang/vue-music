@@ -1,6 +1,7 @@
 import * as types from './types'
 import { shuffle } from 'common/js/util'
 import { playMode } from 'common/js/playModeConfig'
+import { saveSearch, deleteSearch, clearSearch } from 'common/js/cache'
 
 function findIndex (list, song) {
   return list.findIndex((item) => {
@@ -71,4 +72,47 @@ export const insertSong = function ({ commit, state }, song) {
   commit(types.SET_FULL_SCREEN, true)
   // 开启播放
   commit(types.SET_PLAYING_STATE, true)
+}
+
+export const saveSearchHistory = function ({ commit }, query) {
+  commit(types.SET_SEARCH_HISTORY, saveSearch(query))
+}
+
+export const deleteSearchHistory = function ({ commit }, query) {
+  commit(types.SET_SEARCH_HISTORY, deleteSearch(query))
+}
+
+export const clearSearchHistory = function ({ commit }) {
+  commit(types.SET_SEARCH_HISTORY, clearSearch())
+}
+
+export const deleteSong = function ({ commit, state }, song) {
+  const playlist = state.playlist.slice()
+  const sequentlist = state.sequenceList.slice()
+  let currentIndex = state.currentIndex
+
+  const playIndex = playlist.findIndex((item) => {
+    return song.id === item.id
+  })
+  const sequentIndex = sequentlist.findIndex((item) => {
+    return song.id === item.id
+  })
+  playlist.splice(playIndex, 1)
+  sequentlist.splice(sequentIndex, 1)
+  if (playIndex < currentIndex || currentIndex === playlist.length) {
+    currentIndex--
+  }
+  commit(types.SET_PLAYLIST, playlist)
+  commit(types.SET_SEQUENCE_LIST, sequentlist)
+  commit(types.SET_CURRENT_INDEX, currentIndex)
+
+  const playingState = playlist.length > 0
+  commit(types.SET_PLAYING_STATE, playingState)
+}
+
+export const clearSong = function ({ commit, state }) {
+  commit(types.SET_PLAYLIST, [])
+  commit(types.SET_SEQUENCE_LIST, [])
+  commit(types.SET_CURRENT_INDEX, -1)
+  commit(types.SET_PLAYING_STATE, false)
 }
