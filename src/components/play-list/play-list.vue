@@ -4,8 +4,8 @@
       <div class="list-wrapper" @click.stop>
         <div class="list-header">
           <h1 class="title">
-            <i class="icon"></i>
-            <span class="text"></span>
+            <i class="icon" :class="iconMode" @click="changeMode"></i>
+            <span class="text">{{modeText}}</span>
             <span class="clear" @click="clear"><i class="icon-clear"></i></span>
           </h1>
         </div>
@@ -38,7 +38,7 @@
   </transition>
 </template>
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapActions } from 'vuex'
 import Scroll from 'base/scroll/scroll'
 import Confirm from 'base/confirm/confirm'
 import { playMode } from 'common/js/config'
@@ -50,13 +50,9 @@ export default {
     Confirm
   },
   computed: {
-    ...mapGetters([
-      'sequenceList',
-      'mode',
-      'currentIndex',
-      'playList',
-      'currentSong'
-    ])
+    modeText () {
+      return this.mode === playMode.sequence ? '顺序播放' : this.mode === playMode.random ? '随机播放' : '单曲循环'
+    }
   },
   data () {
     return {
@@ -110,10 +106,6 @@ export default {
         this.hidden()
       }
     },
-    ...mapMutations({
-      setCurrentIndex: 'SET_CURRENT_INDEX',
-      setPlayState: 'SET_PLAYING_STATE'
-    }),
     ...mapActions([
       'deleteSong',
       'clearSong'
@@ -165,7 +157,7 @@ export default {
           align-items: center
           .icon
             margin-right: 10px
-            font-size: 30px
+            font-size: 20px
             color: $color-theme-d
           .text
             flex: 1
