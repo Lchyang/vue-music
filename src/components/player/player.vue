@@ -112,7 +112,7 @@
         <div class="control" @click.stop="changePlayingState">
           <i :class="miniPlayIcon"></i>
         </div>
-        <div class="control">
+        <div class="control" @click.stop="showPlayList">
           <i class="icon-playlist"></i>
         </div>
       </div>
@@ -125,6 +125,7 @@
       @timeupdate="timeUpdate"
       @ended="end"
     ></audio>
+    <play-list ref="playList"></play-list>
   </div>
 </template>
 <script type="text/ecmascript-6">
@@ -135,6 +136,7 @@ import playBar from 'base/play-bar/play-bar'
 import { playMode } from 'common/js/playModeConfig'
 import Lyric from 'lyric-parser'
 import Scroll from 'base/scroll/scroll'
+import PlayList from 'components/play-list/play-list'
 const transform = prefixStyle('transform')
 export default {
   data () {
@@ -149,7 +151,8 @@ export default {
   },
   components: {
     playBar,
-    Scroll
+    Scroll,
+    PlayList
   },
   computed: {
     playIcon () {
@@ -179,6 +182,7 @@ export default {
   watch: {
     // 监听歌曲的变化来控制播放与暂停
     currentSong (newSong, oldSong) {
+      if (!newSong.id) { return }
       if (newSong.id === oldSong.id) { return }
       if (this.currentLyric) {
         this.currentLyric.stop()
@@ -212,6 +216,9 @@ export default {
       setCurrentIndex: 'SET_CURRENT_INDEX',
       setPlayMode: 'SET_PLAY_MODE'
     }),
+    showPlayList () {
+      this.$refs.playList.show()
+    },
     middleTouchStart (e) {
       this.touch.inited = true
       const touch = e.touches[0]

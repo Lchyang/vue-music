@@ -34,7 +34,6 @@ export default {
   },
   created () {
     this.$watch('query', debounce((newQuery) => {
-      // console.log(newQuery)
       this.$emit('query', newQuery)
     }, 200))
   }
