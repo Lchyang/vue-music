@@ -42,7 +42,9 @@ import { mapGetters, mapMutations, mapActions } from 'vuex'
 import Scroll from 'base/scroll/scroll'
 import Confirm from 'base/confirm/confirm'
 import { playMode } from 'common/js/config'
+import { playerMixin } from 'common/js/mixin'
 export default {
+  mixins: [playerMixin],
   components: {
     Scroll,
     Confirm

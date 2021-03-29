@@ -137,8 +137,10 @@ import { playMode } from 'common/js/playModeConfig'
 import Lyric from 'lyric-parser'
 import Scroll from 'base/scroll/scroll'
 import PlayList from 'components/play-list/play-list'
+import { playerMixin } from 'common/js/mixin'
 const transform = prefixStyle('transform')
 export default {
+  mixins: [playerMixin],
   data () {
     return {
       songReady: false,
@@ -161,9 +163,6 @@ export default {
     miniPlayIcon () {
       return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
     },
-    iconMode () {
-      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.random ? 'icon-random' : 'icon-loop'
-    },
     cdRoate () {
       return this.playing ? 'play' : ''
     },
@@ -172,11 +171,8 @@ export default {
     },
     ...mapGetters([
       'fullScreen',
-      'playList',
-      'currentSong',
       'playing',
-      'currentIndex',
-      'mode'
+      'currentIndex'
     ])
   },
   watch: {
@@ -211,10 +207,7 @@ export default {
   },
   methods: {
     ...mapMutations({
-      setFullScreen: 'SET_FULL_SCREEN',
-      setPlayingState: 'SET_PLAYING_STATE',
-      setCurrentIndex: 'SET_CURRENT_INDEX',
-      setPlayMode: 'SET_PLAY_MODE'
+      setFullScreen: 'SET_FULL_SCREEN'
     }),
     showPlayList () {
       this.$refs.playList.show()
@@ -269,10 +262,6 @@ export default {
       this.$refs.middleRight.$el.style.transitionDuration = `${time}ms`
       this.$refs.middleLeft.style.opacity = opacity
       this.$refs.middleLeft.style.transitionDuration = `${time}ms`
-    },
-    changeMode () {
-      const mode = (this.mode + 1) % 3
-      this.setPlayMode(mode)
     },
     // 暂停播放
     changePlayingState () {
