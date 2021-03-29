@@ -20,8 +20,9 @@ const state = {
   disc: {},
   toplist: {},
   // 搜索历史
-  searchHistory: loadSearch()
-
+  searchHistory: loadSearch(),
+  // 播放历史
+  playHistory: []
 }
 
 export default state
