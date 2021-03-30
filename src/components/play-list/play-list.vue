@@ -95,7 +95,7 @@ export default {
         })
       }
       this.setCurrentIndex(index)
-      this.setPlayState(true)
+      this.setPlayingState(true)
     },
     scorllToCurrent (item) {
       const index = this.sequenceList.findIndex((song) => {

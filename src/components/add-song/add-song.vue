@@ -16,6 +16,14 @@
           :switches="switches"
           @switch="switchItem"
         ></switches>
+        <div class="list-wrapper">
+          <scroll :key="0" class="list-scroll" v-if="currentIndex === 0" :data="playHistory" ref="songScroll">
+            <song-list :songs="playHistory" class="list-inner" @select="selectSong"></song-list>
+          </scroll>
+          <scroll :key="1" class="list-scroll" v-if='currentIndex === 1' :data="searchHistory" ref="searchScroll">
+            <search-list class="list-inner" :searches="searchHistory" @delete="deleteOne"></search-list>
+          </scroll>
+        </div>
       </div>
       <div class="search-result" v-show="query">
         <suggest
@@ -32,13 +40,21 @@
 import SearchBox from 'base/search-box/search-box'
 import Suggest from 'components/suggest/suggest'
 import Switches from 'base/switches/switches'
+import SongList from 'base/song-list/song-list'
+import Scroll from 'base/scroll/scroll'
+import Song from 'common/js/song'
+import SearchList from 'base/search-list/search-list'
 import { searchMixin } from 'common/js/mixin'
+import { mapGetters, mapActions } from 'vuex'
 export default {
   mixins: [searchMixin],
   components: {
     SearchBox,
     Suggest,
-    Switches
+    Switches,
+    SongList,
+    Scroll,
+    SearchList
   },
   data () {
     return {
@@ -51,9 +67,29 @@ export default {
       ]
     }
   },
+  computed: {
+    ...mapGetters(['playHistory'])
+  },
+  watch: {
+    query (newVal) {
+      if (!newVal) {
+        this.refreshList()
+      }
+    }
+  },
   methods: {
     show () {
       this.showFlag = true
+      this.refreshList()
+    },
+    refreshList () {
+      setTimeout(() => {
+        if (this.currentIndex === 0) {
+          this.$refs.songScroll.refresh()
+        } else {
+          this.$refs.searchScroll.refresh()
+        }
+      }, 100)
     },
     hide () {
       this.showFlag = false
@@ -66,7 +102,16 @@ export default {
     },
     switchItem (index) {
       this.currentIndex = index
-    }
+    },
+    selectSong (item, index) {
+      if (index !== 0) {
+        this.insertSong(new Song(item))
+      }
+    },
+    deleteOne (item) {
+      this.deleteSearchHistory(item)
+    },
+    ...mapActions(['insertSong', 'deleteSearchHistory'])
   }
 }
 </script>

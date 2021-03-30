@@ -1,7 +1,7 @@
 import * as types from './types'
 import { shuffle } from 'common/js/util'
 import { playMode } from 'common/js/playModeConfig'
-import { saveSearch, deleteSearch, clearSearch } from 'common/js/cache'
+import { saveSearch, deleteSearch, clearSearch, savePlay, deletePlay } from 'common/js/cache'
 
 function findIndex (list, song) {
   return list.findIndex((item) => {
@@ -110,9 +110,17 @@ export const deleteSong = function ({ commit, state }, song) {
   commit(types.SET_PLAYING_STATE, playingState)
 }
 
-export const clearSong = function ({ commit, state }) {
+export const clearSong = function ({ commit }) {
   commit(types.SET_PLAYLIST, [])
   commit(types.SET_SEQUENCE_LIST, [])
   commit(types.SET_CURRENT_INDEX, -1)
   commit(types.SET_PLAYING_STATE, false)
+}
+
+export const savePlayHistory = function ({ commit }, song) {
+  commit(types.SET_PLAY_HISTORY, savePlay(song))
+}
+
+export const deletePlayHistory = function ({ commit }, song) {
+  commit(types.SET_PLAY_HISTORY, deletePlay(song))
 }
