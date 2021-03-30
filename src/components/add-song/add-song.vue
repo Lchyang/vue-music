@@ -8,7 +8,7 @@
         </div>
       </div>
       <div class="search-box-wrapper">
-        <search-box @query="search" placeholder="搜索歌曲"></search-box>
+        <search-box @query="search" placeholder="搜索歌曲" ref="searchBox"></search-box>
       </div>
       <div class="shortcut" v-show="!query">
         <switches
@@ -21,7 +21,7 @@
             <song-list :songs="playHistory" class="list-inner" @select="selectSong"></song-list>
           </scroll>
           <scroll :key="1" class="list-scroll" v-if='currentIndex === 1' :data="searchHistory" ref="searchScroll">
-            <search-list class="list-inner" :searches="searchHistory" @delete="deleteOne"></search-list>
+            <search-list class="list-inner" :searches="searchHistory" @delete="deleteOne" @select="addQuery"></search-list>
           </scroll>
         </div>
       </div>
@@ -33,6 +33,12 @@
           @listScroll="blurInput"
         ></suggest>
       </div>
+      <top-tip ref='topTip'>
+        <div class="tip-title">
+          <i class="icon-ok"></i>
+          <span class="text">1首歌曲已经添加到播放队列</span>
+        </div>
+      </top-tip>
     </div>
   </transition>
 </template>
@@ -44,6 +50,7 @@ import SongList from 'base/song-list/song-list'
 import Scroll from 'base/scroll/scroll'
 import Song from 'common/js/song'
 import SearchList from 'base/search-list/search-list'
+import TopTip from 'base/top-tip/top-tip'
 import { searchMixin } from 'common/js/mixin'
 import { mapGetters, mapActions } from 'vuex'
 export default {
@@ -54,7 +61,8 @@ export default {
     Switches,
     SongList,
     Scroll,
-    SearchList
+    SearchList,
+    TopTip
   },
   data () {
     return {
@@ -78,6 +86,9 @@ export default {
     }
   },
   methods: {
+    showTip () {
+      this.$refs.topTip.show()
+    },
     show () {
       this.showFlag = true
       this.refreshList()
@@ -99,6 +110,7 @@ export default {
     },
     selectItem () {
       this.saveSearch()
+      this.showTip()
     },
     switchItem (index) {
       this.currentIndex = index
@@ -106,6 +118,7 @@ export default {
     selectSong (item, index) {
       if (index !== 0) {
         this.insertSong(new Song(item))
+        this.showTip()
       }
     },
     deleteOne (item) {
