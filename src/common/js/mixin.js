@@ -15,7 +15,7 @@ export const playlistMixin = {
     this.handlePlaylist(this.playList)
   },
   watch: {
-    playlist (newVal) {
+    playList (newVal) {
       this.handlePlaylist(newVal)
     }
   },

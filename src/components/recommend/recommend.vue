@@ -1,7 +1,7 @@
 <template>
-  <div class="recommend">
+  <div class="recommend" ref="recommendWrapper">
     <scroll ref="scroll" class="recommend-content" :data="songsList">
-      <div>
+      <div ref="wrapper">
         <!-- v-if 确保recommend有数据了然后渲染子元素，否则可能会导致，数据还没有取到， -->
         <!-- 子组件的monted已经执行，导致子组件中的函数失效 -->
         <div v-if="recommends.length" class="slider-wrapper">
@@ -43,7 +43,9 @@ import Loading from 'base/loading/loading'
 import { getRecommend, getDiscList } from 'api/recommend'
 import { ERR_OK } from 'api/config'
 import { mapMutations } from 'vuex'
+import { playlistMixin } from 'common/js/mixin'
 export default {
+  mixins: [playlistMixin],
   data () {
     return {
       recommends: [],
@@ -60,6 +62,11 @@ export default {
     this._getDiscList()
   },
   methods: {
+    handlePlaylist (playlist) {
+      const bottom = playlist.length > 0 ? '60px' : ''
+      this.$refs.recommendWrapper.style.bottom = bottom
+      this.$refs.scroll.refresh()
+    },
     selectItem (item) {
       this.setDisc(item)
       this.$router.push({ path: `/recommend/${item.dissid}` })
