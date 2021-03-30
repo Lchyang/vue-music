@@ -11,6 +11,11 @@ import VueLazyload from 'vue-lazyload'
 
 import 'common/stylus/index.styl'
 
+/* eslint-disable no-unused-vars */
+import vConsole from 'vconsole'
+
+console.log('hello world')
+
 Vue.use(VueLazyload, {
   loading: require('common/image/default.png')
 })
