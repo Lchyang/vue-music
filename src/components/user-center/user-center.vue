@@ -1,25 +1,28 @@
 <template>
 <transition name="slide">
-    <div class="user-center">
-      <div class="back" @click="back">
-        <i class="icon-back"></i>
-      </div>
-      <div class="switches-wrapper">
-        <switches :switches="switches" :currentIndex="currentIndex" @switch="switchItem"></switches>
-      </div>
-      <div ref="playBtn" class="play-btn" @click="random">
-        <i class="icon-play"></i>
-        <span class="text">随机播放全部</span>
-      </div>
-      <div class="list-wrapper" ref="listWrapper">
-        <scroll :key="0" class="list-scroll" v-if="currentIndex === 0" :data="favoriteList" ref="favoriteScroll">
-          <song-list :songs="favoriteList" class="list-inner" @select="selectSong"></song-list>
-        </scroll>
-        <scroll :key="1" class="list-scroll" v-if='currentIndex === 1' :data="playHistory" ref="playScroll">
-          <song-list :songs="playHistory" class="list-inner" @select="selectSong"></song-list>
-        </scroll>
-      </div>
+  <div class="user-center">
+    <div class="back" @click="back">
+      <i class="icon-back"></i>
     </div>
+    <div class="switches-wrapper">
+      <switches :switches="switches" :currentIndex="currentIndex" @switch="switchItem"></switches>
+    </div>
+    <div ref="playBtn" class="play-btn" @click="random">
+      <i class="icon-play"></i>
+      <span class="text">随机播放全部</span>
+    </div>
+    <div class="list-wrapper" ref="listWrapper">
+      <scroll :key="0" class="list-scroll" v-if="currentIndex === 0" :data="favoriteList" ref="favoriteScroll">
+        <song-list :songs="favoriteList" class="list-inner" @select="selectSong"></song-list>
+      </scroll>
+      <scroll :key="1" class="list-scroll" v-if='currentIndex === 1' :data="playHistory" ref="playScroll">
+        <song-list :songs="playHistory" class="list-inner" @select="selectSong"></song-list>
+      </scroll>
+    </div>
+    <div class="no-result-wrapper" v-show="noResult">
+      <no-result :title="noResultDesc"></no-result>
+    </div>
+  </div>
 </transition>
 
 </template>
@@ -28,6 +31,7 @@ import Switches from 'base/switches/switches'
 import Scroll from 'base/scroll/scroll'
 import SongList from 'base/song-list/song-list'
 import Song from 'common/js/song'
+import NoResult from 'base/no-result/no-result'
 import { mapGetters, mapActions } from 'vuex'
 import { playlistMixin } from 'common/js/mixin'
 export default {
@@ -44,10 +48,25 @@ export default {
   components: {
     Switches,
     Scroll,
-    SongList
+    SongList,
+    NoResult
   },
   computed: {
-    ...mapGetters(['playHistory', 'favoriteList'])
+    ...mapGetters(['playHistory', 'favoriteList']),
+    noResult () {
+      if (this.currentIndex === 0) {
+        return !this.favoriteList.length
+      } else {
+        return !this.playHistory.length
+      }
+    },
+    noResultDesc () {
+      if (this.currentIndex === 0) {
+        return '暂无收藏歌曲'
+      } else {
+        return '你没有听过歌曲'
+      }
+    }
   },
   methods: {
     handlePlaylist (playlist) {
@@ -67,6 +86,7 @@ export default {
     },
     random () {
       let list = this.currentIndex === 0 ? this.favoriteList : this.playHistory
+      if (!list.length) { return }
       list = list.map((song) => {
         return new Song(song)
       })

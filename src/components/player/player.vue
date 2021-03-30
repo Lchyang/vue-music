@@ -120,7 +120,7 @@
     <audio
       ref="audio"
       :src="currentSong.url"
-      @canplay="ready"
+      @play="ready"
       @error="error"
       @timeupdate="timeUpdate"
       @ended="end"
@@ -182,8 +182,14 @@ export default {
       if (newSong.id === oldSong.id) { return }
       if (this.currentLyric) {
         this.currentLyric.stop()
+        // 重置为null
+        this.currentLyric = null
+        this.currentTime = 0
+        this.playingLyric = ''
+        this.currentLineNum = 0
       }
-      this.$nextTick(() => {
+      clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
         this.$refs.audio.play()
         this.getLyric()
       })
@@ -365,13 +371,18 @@ export default {
       if (!this.songReady) {
         return
       }
-      let index = this.currentIndex + 1
-      if (index === this.playList.length) {
-        index = 0
-      }
-      this.setCurrentIndex(index)
-      if (!this.playing) {
-        this.changePlayingState()
+      if (this.playList.length === 1) {
+        this.loop()
+        return
+      } else {
+        let index = this.currentIndex + 1
+        if (index === this.playList.length) {
+          index = 0
+        }
+        this.setCurrentIndex(index)
+        if (!this.playing) {
+          this.changePlayingState()
+        }
       }
       this.songReady = false
     },
@@ -380,13 +391,18 @@ export default {
       if (!this.songReady) {
         return
       }
-      let index = this.currentIndex - 1
-      if (index === -1) {
-        index = this.playList.length - 1
-      }
-      this.setCurrentIndex(index)
-      if (!this.playing) {
-        this.changePlayingState()
+      if (this.playList.length === 1) {
+        this.loop()
+        return
+      } else {
+        let index = this.currentIndex - 1
+        if (index === -1) {
+          index = this.playList.length - 1
+        }
+        this.setCurrentIndex(index)
+        if (!this.playing) {
+          this.changePlayingState()
+        }
       }
       this.songReady = false
     },
@@ -430,6 +446,14 @@ export default {
         this.currentLyric.seek(currentTime * 1000)
       }
     },
+    loop () {
+      this.$refs.audio.currentTime = 0
+      this.$refs.audio.play()
+      this.setPlayingState(true)
+      if (this.currentLyric) {
+        this.currentLyric.seek(0)
+      }
+    },
     // 播放结束后歌曲跳转
     end () {
       if (this.mode === playMode.loop) {
@@ -445,6 +469,7 @@ export default {
     },
     getLyric () {
       this.currentSong.getLyric().then(res => {
+        if (this.currentSong.lyric !== res) { return }
         this.currentLyric = new Lyric(res, this.handleLyric)
         this.currentLineNum = this.currentLyric
         if (this.playing) {
