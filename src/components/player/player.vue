@@ -134,7 +134,7 @@ import animations from 'create-keyframe-animation'
 import { prefixStyle } from 'common/js/dom'
 import playBar from 'base/play-bar/play-bar'
 import { playMode } from 'common/js/playModeConfig'
-import Lyric from 'lyric-parser'
+import Lyric from 'common/js/lyric'
 import Scroll from 'base/scroll/scroll'
 import PlayList from 'components/play-list/play-list'
 import { playerMixin } from 'common/js/mixin'
@@ -471,7 +471,7 @@ export default {
       this.currentSong.getLyric().then(res => {
         if (this.currentSong.lyric !== res) { return }
         this.currentLyric = new Lyric(res, this.handleLyric)
-        this.currentLineNum = this.currentLyric
+        // this.currentLineNum = this.currentLyric.curNum
         if (this.playing) {
           this.currentLyric.play()
         }
