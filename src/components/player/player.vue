@@ -245,6 +245,7 @@ export default {
     middleTouchEnd () {
       let offsetWidth
       let opacity
+      if (this.touch.touchPersent === 0) return 0
       if (this.dotShow === 'cd') {
         if (this.touch.touchPersent > 0.1) {
           offsetWidth = -window.innerWidth
@@ -269,6 +270,7 @@ export default {
       this.$refs.middleRight.$el.style.transitionDuration = `${time}ms`
       this.$refs.middleLeft.style.opacity = opacity
       this.$refs.middleLeft.style.transitionDuration = `${time}ms`
+      this.touch.touchPersent = 0
     },
     // 暂停播放
     changePlayingState () {
